@@ -1,0 +1,370 @@
+[
+  {
+    "category": "help_from_external_cwd",
+    "arguments": [
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\repository\\scripts\\build_data_split_manifests.py",
+      "--help"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "seconds": 0.125,
+    "stdout": "usage: build_data_split_manifests.py [-h] --data-root DATA_ROOT\n                                     --output-dir OUTPUT_DIR\n                                     [--selection-dir SELECTION_DIR]\n                                     [--allow-hash-differences]\n\nRebuild portable manifests from extracted SQR WAVs without moving audio\n\noptions:\n  -h, --help            show this help message and exit\n  --data-root DATA_ROOT\n  --output-dir OUTPUT_DIR\n  --selection-dir SELECTION_DIR\n  --allow-hash-differences\n",
+    "stderr": ""
+  },
+  {
+    "category": "help_from_external_cwd",
+    "arguments": [
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\repository\\scripts\\build_dense_cache.py",
+      "--help"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "seconds": 0.228,
+    "stdout": "usage: build_dense_cache.py [-h] --data-root DATA_ROOT\n                            --output-root OUTPUT_ROOT\n                            --train-manifest TRAIN_MANIFEST\n                            --val-manifest VAL_MANIFEST\n                            --test-manifest TEST_MANIFEST\n\nBuild unnormalized dense-crop NPZ files using an explicit split selection.\nThis restores the original whole-record cache format, with portable paths and\ninput checks. It does not establish byte identity with the unavailable\noriginal baseline cache. Existing cache destinations are never overwritten.\n\noptions:\n  -h, --help            show this help message and exit\n  --data-root DATA_ROOT\n  --output-root OUTPUT_ROOT\n  --train-manifest TRAIN_MANIFEST\n  --val-manifest VAL_MANIFEST\n  --test-manifest TEST_MANIFEST\n",
+    "stderr": ""
+  },
+  {
+    "category": "help_from_external_cwd",
+    "arguments": [
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\repository\\scripts\\evaluate_checkpoint.py",
+      "--help"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "seconds": 1.902,
+    "stdout": "usage: evaluate_checkpoint.py [-h] --config CONFIG --checkpoint CHECKPOINT\n                              --manifest MANIFEST [--root ROOT] [--tag TAG]\n                              [--output OUTPUT]\n\noptions:\n  -h, --help            show this help message and exit\n  --config CONFIG\n  --checkpoint CHECKPOINT\n  --manifest MANIFEST\n  --root ROOT\n  --tag TAG\n  --output OUTPUT       Explicit new result JSON; existing files are never\n                        overwritten\n",
+    "stderr": ""
+  },
+  {
+    "category": "help_from_external_cwd",
+    "arguments": [
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\repository\\scripts\\train_author_release_12ep_warmup_cosine.py",
+      "--help"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "seconds": 1.945,
+    "stdout": "usage: train_author_release_12ep_warmup_cosine.py [-h] [--config CONFIG]\n                                                  [--data-root DATA_ROOT]\n                                                  [--val-data-root VAL_DATA_ROOT]\n                                                  [--test-data-root TEST_DATA_ROOT]\n                                                  [--run-root RUN_ROOT]\n                                                  [--train-manifest TRAIN_MANIFEST]\n                                                  [--val-manifest VAL_MANIFEST]\n                                                  [--test-manifest TEST_MANIFEST]\n                                                  --cache-root CACHE_ROOT\n                                                  [--check-only]\n\nHistorical experiment; path overrides do not change its numerical protocol.\n\noptions:\n  -h, --help            show this help message and exit\n  --config CONFIG\n  --data-root DATA_ROOT\n  --val-data-root VAL_DATA_ROOT\n  --test-data-root TEST_DATA_ROOT\n  --run-root RUN_ROOT\n  --train-manifest TRAIN_MANIFEST\n  --val-manifest VAL_MANIFEST\n  --test-manifest TEST_MANIFEST\n  --cache-root CACHE_ROOT\n                        Explicit dense cache; original cache/audio identity is\n                        not bundled.\n  --check-only          Validate manifests and WAV headers without building a\n                        model or training.\n",
+    "stderr": ""
+  },
+  {
+    "category": "help_from_external_cwd",
+    "arguments": [
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\repository\\scripts\\train_PureDrop_E3_300ep.py",
+      "--help"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "seconds": 1.936,
+    "stdout": "usage: train_PureDrop_E3_300ep.py [-h] [--config CONFIG]\n                                  [--data-root DATA_ROOT]\n                                  [--val-data-root VAL_DATA_ROOT]\n                                  [--test-data-root TEST_DATA_ROOT]\n                                  [--run-root RUN_ROOT]\n                                  [--train-manifest TRAIN_MANIFEST]\n                                  [--val-manifest VAL_MANIFEST]\n                                  [--test-manifest TEST_MANIFEST]\n                                  [--check-only]\n\nHistorical experiment; path overrides do not change its numerical protocol.\n\noptions:\n  -h, --help            show this help message and exit\n  --config CONFIG\n  --data-root DATA_ROOT\n  --val-data-root VAL_DATA_ROOT\n  --test-data-root TEST_DATA_ROOT\n  --run-root RUN_ROOT\n  --train-manifest TRAIN_MANIFEST\n  --val-manifest VAL_MANIFEST\n  --test-manifest TEST_MANIFEST\n  --check-only          Validate manifests and WAV headers without building a\n                        model or training.\n",
+    "stderr": ""
+  },
+  {
+    "category": "help_from_external_cwd",
+    "arguments": [
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\repository\\scripts\\train_PureNoise_E2_300ep.py",
+      "--help"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "seconds": 1.927,
+    "stdout": "usage: train_PureNoise_E2_300ep.py [-h] [--config CONFIG]\n                                   [--data-root DATA_ROOT]\n                                   [--val-data-root VAL_DATA_ROOT]\n                                   [--test-data-root TEST_DATA_ROOT]\n                                   [--run-root RUN_ROOT]\n                                   [--train-manifest TRAIN_MANIFEST]\n                                   [--val-manifest VAL_MANIFEST]\n                                   [--test-manifest TEST_MANIFEST]\n                                   [--check-only]\n\nHistorical experiment; path overrides do not change its numerical protocol.\n\noptions:\n  -h, --help            show this help message and exit\n  --config CONFIG\n  --data-root DATA_ROOT\n  --val-data-root VAL_DATA_ROOT\n  --test-data-root TEST_DATA_ROOT\n  --run-root RUN_ROOT\n  --train-manifest TRAIN_MANIFEST\n  --val-manifest VAL_MANIFEST\n  --test-manifest TEST_MANIFEST\n  --check-only          Validate manifests and WAV headers without building a\n                        model or training.\n",
+    "stderr": ""
+  },
+  {
+    "category": "help_from_external_cwd",
+    "arguments": [
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\repository\\scripts\\train_PureSwap_E1cosine-B_1000ep.py",
+      "--help"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "seconds": 1.92,
+    "stdout": "usage: train_PureSwap_E1cosine-B_1000ep.py [-h] [--config CONFIG]\n                                           --data-root DATA_ROOT\n                                           --val-data-root VAL_DATA_ROOT\n                                           --test-data-root TEST_DATA_ROOT\n                                           [--run-root RUN_ROOT]\n                                           --train-manifest TRAIN_MANIFEST\n                                           --val-manifest VAL_MANIFEST\n                                           [--test-manifest TEST_MANIFEST]\n                                           [--check-only]\n\nHistorical experiment; path overrides do not change its numerical protocol.\n\noptions:\n  -h, --help            show this help message and exit\n  --config CONFIG\n  --data-root DATA_ROOT\n  --val-data-root VAL_DATA_ROOT\n  --test-data-root TEST_DATA_ROOT\n  --run-root RUN_ROOT\n  --train-manifest TRAIN_MANIFEST\n  --val-manifest VAL_MANIFEST\n  --test-manifest TEST_MANIFEST\n  --check-only          Validate manifests and WAV headers without building a\n                        model or training.\n",
+    "stderr": ""
+  },
+  {
+    "category": "help_from_external_cwd",
+    "arguments": [
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\repository\\scripts\\train_PureSwap_E1cosine-P10_1000ep.py",
+      "--help"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "seconds": 1.915,
+    "stdout": "usage: train_PureSwap_E1cosine-P10_1000ep.py [-h] [--config CONFIG]\n                                             [--data-root DATA_ROOT]\n                                             [--val-data-root VAL_DATA_ROOT]\n                                             [--test-data-root TEST_DATA_ROOT]\n                                             [--run-root RUN_ROOT]\n                                             [--train-manifest TRAIN_MANIFEST]\n                                             [--val-manifest VAL_MANIFEST]\n                                             [--test-manifest TEST_MANIFEST]\n                                             [--check-only]\n\nHistorical experiment; path overrides do not change its numerical protocol.\n\noptions:\n  -h, --help            show this help message and exit\n  --config CONFIG\n  --data-root DATA_ROOT\n  --val-data-root VAL_DATA_ROOT\n  --test-data-root TEST_DATA_ROOT\n  --run-root RUN_ROOT\n  --train-manifest TRAIN_MANIFEST\n  --val-manifest VAL_MANIFEST\n  --test-manifest TEST_MANIFEST\n  --check-only          Validate manifests and WAV headers without building a\n                        model or training.\n",
+    "stderr": ""
+  },
+  {
+    "category": "help_from_external_cwd",
+    "arguments": [
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\repository\\scripts\\train_PureSwap_E1cosine-P15_1000ep.py",
+      "--help"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "seconds": 1.925,
+    "stdout": "usage: train_PureSwap_E1cosine-P15_1000ep.py [-h] [--config CONFIG]\n                                             [--data-root DATA_ROOT]\n                                             [--val-data-root VAL_DATA_ROOT]\n                                             [--test-data-root TEST_DATA_ROOT]\n                                             [--run-root RUN_ROOT]\n                                             [--train-manifest TRAIN_MANIFEST]\n                                             [--val-manifest VAL_MANIFEST]\n                                             [--test-manifest TEST_MANIFEST]\n                                             [--check-only]\n\nHistorical experiment; path overrides do not change its numerical protocol.\n\noptions:\n  -h, --help            show this help message and exit\n  --config CONFIG\n  --data-root DATA_ROOT\n  --val-data-root VAL_DATA_ROOT\n  --test-data-root TEST_DATA_ROOT\n  --run-root RUN_ROOT\n  --train-manifest TRAIN_MANIFEST\n  --val-manifest VAL_MANIFEST\n  --test-manifest TEST_MANIFEST\n  --check-only          Validate manifests and WAV headers without building a\n                        model or training.\n",
+    "stderr": ""
+  },
+  {
+    "category": "help_from_external_cwd",
+    "arguments": [
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\repository\\scripts\\train_PureSwap_E1cosine-P50_1000ep.py",
+      "--help"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "seconds": 2.108,
+    "stdout": "usage: train_PureSwap_E1cosine-P50_1000ep.py [-h] [--config CONFIG]\n                                             [--data-root DATA_ROOT]\n                                             [--val-data-root VAL_DATA_ROOT]\n                                             [--test-data-root TEST_DATA_ROOT]\n                                             [--run-root RUN_ROOT]\n                                             [--train-manifest TRAIN_MANIFEST]\n                                             [--val-manifest VAL_MANIFEST]\n                                             [--test-manifest TEST_MANIFEST]\n                                             [--check-only]\n\nHistorical experiment; path overrides do not change its numerical protocol.\n\noptions:\n  -h, --help            show this help message and exit\n  --config CONFIG\n  --data-root DATA_ROOT\n  --val-data-root VAL_DATA_ROOT\n  --test-data-root TEST_DATA_ROOT\n  --run-root RUN_ROOT\n  --train-manifest TRAIN_MANIFEST\n  --val-manifest VAL_MANIFEST\n  --test-manifest TEST_MANIFEST\n  --check-only          Validate manifests and WAV headers without building a\n                        model or training.\n",
+    "stderr": ""
+  },
+  {
+    "category": "help_from_external_cwd",
+    "arguments": [
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\repository\\scripts\\train_PureSwap_E4_1000ep.py",
+      "--help"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "seconds": 2.138,
+    "stdout": "usage: train_PureSwap_E4_1000ep.py [-h] [--config CONFIG]\n                                   [--data-root DATA_ROOT]\n                                   [--val-data-root VAL_DATA_ROOT]\n                                   [--test-data-root TEST_DATA_ROOT]\n                                   [--run-root RUN_ROOT]\n                                   [--train-manifest TRAIN_MANIFEST]\n                                   [--val-manifest VAL_MANIFEST]\n                                   [--test-manifest TEST_MANIFEST]\n                                   [--check-only]\n\nHistorical experiment; path overrides do not change its numerical protocol.\n\noptions:\n  -h, --help            show this help message and exit\n  --config CONFIG\n  --data-root DATA_ROOT\n  --val-data-root VAL_DATA_ROOT\n  --test-data-root TEST_DATA_ROOT\n  --run-root RUN_ROOT\n  --train-manifest TRAIN_MANIFEST\n  --val-manifest VAL_MANIFEST\n  --test-manifest TEST_MANIFEST\n  --check-only          Validate manifests and WAV headers without building a\n                        model or training.\n",
+    "stderr": ""
+  },
+  {
+    "category": "help_from_external_cwd",
+    "arguments": [
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\repository\\scripts\\verify_results.py",
+      "--help"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "seconds": 0.119,
+    "stdout": "usage: verify_results.py [-h] [--output OUTPUT]\n\nRecompute saved aggregate scores and verify bundled evidence hashes. No audio,\ncheckpoint loading or inference is performed. Exit nonzero on any changed raw\nevidence, duplicated query, incomplete grid, or inconsistent summary.\n\noptions:\n  -h, --help       show this help message and exit\n  --output OUTPUT\n",
+    "stderr": ""
+  },
+  {
+    "category": "check_only_real_wav_headers",
+    "arguments": [
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\repository\\scripts\\train_author_release_12ep_warmup_cosine.py",
+      "--data-root",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\audio",
+      "--run-root",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\must_not_train",
+      "--check-only",
+      "--train-manifest",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\baseline_train.jsonl",
+      "--val-manifest",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\baseline_val.jsonl",
+      "--test-manifest",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\baseline_test.jsonl",
+      "--cache-root",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\cache"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "seconds": 2.51,
+    "stdout": "{\n  \"status\": \"INPUT_HEADERS_VALID\",\n  \"records\": {\n    \"train\": 60,\n    \"val\": 10,\n    \"test\": 12\n  },\n  \"data_root\": \"C:\\\\Users\\\\32247\\\\Documents\\\\Codex\\\\2026-11-14\\\\musescore-midi-sqr-midi-type2-type1-2\\\\work\\\\mss-release-preparation\\\\entrypoint-fixture-v2\\\\audio\",\n  \"val_data_root\": \"C:\\\\Users\\\\32247\\\\Documents\\\\Codex\\\\2026-11-14\\\\musescore-midi-sqr-midi-type2-type1-2\\\\work\\\\mss-release-preparation\\\\entrypoint-fixture-v2\\\\audio\",\n  \"test_data_root\": \"C:\\\\Users\\\\32247\\\\Documents\\\\Codex\\\\2026-11-14\\\\musescore-midi-sqr-midi-type2-type1-2\\\\work\\\\mss-release-preparation\\\\entrypoint-fixture-v2\\\\audio\",\n  \"crop_samples\": 179200,\n  \"checks\": \"manifest schema, IDs, paths, headers; no full-waveform or acoustic QA\",\n  \"dense_cache\": \"C:\\\\Users\\\\32247\\\\Documents\\\\Codex\\\\2026-11-14\\\\musescore-midi-sqr-midi-type2-type1-2\\\\work\\\\mss-release-preparation\\\\entrypoint-fixture-v2\\\\cache\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "category": "check_only_real_wav_headers",
+    "arguments": [
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\repository\\scripts\\train_PureDrop_E3_300ep.py",
+      "--data-root",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\audio",
+      "--run-root",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\must_not_train",
+      "--check-only",
+      "--train-manifest",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\main_train.jsonl",
+      "--val-manifest",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\main_val.jsonl",
+      "--test-manifest",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\main_test.jsonl"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "seconds": 2.528,
+    "stdout": "{\n  \"status\": \"INPUT_HEADERS_VALID\",\n  \"records\": {\n    \"train\": 59,\n    \"val\": 12,\n    \"test\": 12\n  },\n  \"data_root\": \"C:\\\\Users\\\\32247\\\\Documents\\\\Codex\\\\2026-11-14\\\\musescore-midi-sqr-midi-type2-type1-2\\\\work\\\\mss-release-preparation\\\\entrypoint-fixture-v2\\\\audio\",\n  \"val_data_root\": \"C:\\\\Users\\\\32247\\\\Documents\\\\Codex\\\\2026-11-14\\\\musescore-midi-sqr-midi-type2-type1-2\\\\work\\\\mss-release-preparation\\\\entrypoint-fixture-v2\\\\audio\",\n  \"test_data_root\": \"C:\\\\Users\\\\32247\\\\Documents\\\\Codex\\\\2026-11-14\\\\musescore-midi-sqr-midi-type2-type1-2\\\\work\\\\mss-release-preparation\\\\entrypoint-fixture-v2\\\\audio\",\n  \"crop_samples\": 179200,\n  \"checks\": \"manifest schema, IDs, paths, headers; no full-waveform or acoustic QA\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "category": "check_only_real_wav_headers",
+    "arguments": [
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\repository\\scripts\\train_PureNoise_E2_300ep.py",
+      "--data-root",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\audio",
+      "--run-root",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\must_not_train",
+      "--check-only",
+      "--train-manifest",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\main_train.jsonl",
+      "--val-manifest",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\main_val.jsonl",
+      "--test-manifest",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\main_test.jsonl"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "seconds": 2.629,
+    "stdout": "{\n  \"status\": \"INPUT_HEADERS_VALID\",\n  \"records\": {\n    \"train\": 59,\n    \"val\": 12,\n    \"test\": 12\n  },\n  \"data_root\": \"C:\\\\Users\\\\32247\\\\Documents\\\\Codex\\\\2026-11-14\\\\musescore-midi-sqr-midi-type2-type1-2\\\\work\\\\mss-release-preparation\\\\entrypoint-fixture-v2\\\\audio\",\n  \"val_data_root\": \"C:\\\\Users\\\\32247\\\\Documents\\\\Codex\\\\2026-11-14\\\\musescore-midi-sqr-midi-type2-type1-2\\\\work\\\\mss-release-preparation\\\\entrypoint-fixture-v2\\\\audio\",\n  \"test_data_root\": \"C:\\\\Users\\\\32247\\\\Documents\\\\Codex\\\\2026-11-14\\\\musescore-midi-sqr-midi-type2-type1-2\\\\work\\\\mss-release-preparation\\\\entrypoint-fixture-v2\\\\audio\",\n  \"crop_samples\": 179200,\n  \"checks\": \"manifest schema, IDs, paths, headers; no full-waveform or acoustic QA\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "category": "check_only_real_wav_headers",
+    "arguments": [
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\repository\\scripts\\train_PureSwap_E1cosine-B_1000ep.py",
+      "--data-root",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\audio",
+      "--run-root",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\must_not_train",
+      "--check-only",
+      "--train-manifest",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\main_train.jsonl",
+      "--val-manifest",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\main_val.jsonl",
+      "--test-manifest",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\main_test.jsonl",
+      "--val-data-root",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\audio",
+      "--test-data-root",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\audio"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "seconds": 2.562,
+    "stdout": "{\n  \"status\": \"INPUT_HEADERS_VALID\",\n  \"records\": {\n    \"train\": 59,\n    \"val\": 12,\n    \"test\": 12\n  },\n  \"data_root\": \"C:\\\\Users\\\\32247\\\\Documents\\\\Codex\\\\2026-11-14\\\\musescore-midi-sqr-midi-type2-type1-2\\\\work\\\\mss-release-preparation\\\\entrypoint-fixture-v2\\\\audio\",\n  \"val_data_root\": \"C:\\\\Users\\\\32247\\\\Documents\\\\Codex\\\\2026-11-14\\\\musescore-midi-sqr-midi-type2-type1-2\\\\work\\\\mss-release-preparation\\\\entrypoint-fixture-v2\\\\audio\",\n  \"test_data_root\": \"C:\\\\Users\\\\32247\\\\Documents\\\\Codex\\\\2026-11-14\\\\musescore-midi-sqr-midi-type2-type1-2\\\\work\\\\mss-release-preparation\\\\entrypoint-fixture-v2\\\\audio\",\n  \"crop_samples\": 179200,\n  \"checks\": \"manifest schema, IDs, paths, headers; no full-waveform or acoustic QA\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "category": "check_only_real_wav_headers",
+    "arguments": [
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\repository\\scripts\\train_PureSwap_E1cosine-P10_1000ep.py",
+      "--data-root",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\audio",
+      "--run-root",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\must_not_train",
+      "--check-only",
+      "--train-manifest",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\main_train.jsonl",
+      "--val-manifest",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\main_val.jsonl",
+      "--test-manifest",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\main_test.jsonl"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "seconds": 2.625,
+    "stdout": "{\n  \"status\": \"INPUT_HEADERS_VALID\",\n  \"records\": {\n    \"train\": 59,\n    \"val\": 12,\n    \"test\": 12\n  },\n  \"data_root\": \"C:\\\\Users\\\\32247\\\\Documents\\\\Codex\\\\2026-11-14\\\\musescore-midi-sqr-midi-type2-type1-2\\\\work\\\\mss-release-preparation\\\\entrypoint-fixture-v2\\\\audio\",\n  \"val_data_root\": \"C:\\\\Users\\\\32247\\\\Documents\\\\Codex\\\\2026-11-14\\\\musescore-midi-sqr-midi-type2-type1-2\\\\work\\\\mss-release-preparation\\\\entrypoint-fixture-v2\\\\audio\",\n  \"test_data_root\": \"C:\\\\Users\\\\32247\\\\Documents\\\\Codex\\\\2026-11-14\\\\musescore-midi-sqr-midi-type2-type1-2\\\\work\\\\mss-release-preparation\\\\entrypoint-fixture-v2\\\\audio\",\n  \"crop_samples\": 179200,\n  \"checks\": \"manifest schema, IDs, paths, headers; no full-waveform or acoustic QA\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "category": "check_only_real_wav_headers",
+    "arguments": [
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\repository\\scripts\\train_PureSwap_E1cosine-P15_1000ep.py",
+      "--data-root",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\audio",
+      "--run-root",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\must_not_train",
+      "--check-only",
+      "--train-manifest",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\main_train.jsonl",
+      "--val-manifest",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\main_val.jsonl",
+      "--test-manifest",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\main_test.jsonl"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "seconds": 2.616,
+    "stdout": "{\n  \"status\": \"INPUT_HEADERS_VALID\",\n  \"records\": {\n    \"train\": 59,\n    \"val\": 12,\n    \"test\": 12\n  },\n  \"data_root\": \"C:\\\\Users\\\\32247\\\\Documents\\\\Codex\\\\2026-11-14\\\\musescore-midi-sqr-midi-type2-type1-2\\\\work\\\\mss-release-preparation\\\\entrypoint-fixture-v2\\\\audio\",\n  \"val_data_root\": \"C:\\\\Users\\\\32247\\\\Documents\\\\Codex\\\\2026-11-14\\\\musescore-midi-sqr-midi-type2-type1-2\\\\work\\\\mss-release-preparation\\\\entrypoint-fixture-v2\\\\audio\",\n  \"test_data_root\": \"C:\\\\Users\\\\32247\\\\Documents\\\\Codex\\\\2026-11-14\\\\musescore-midi-sqr-midi-type2-type1-2\\\\work\\\\mss-release-preparation\\\\entrypoint-fixture-v2\\\\audio\",\n  \"crop_samples\": 179200,\n  \"checks\": \"manifest schema, IDs, paths, headers; no full-waveform or acoustic QA\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "category": "check_only_real_wav_headers",
+    "arguments": [
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\repository\\scripts\\train_PureSwap_E1cosine-P50_1000ep.py",
+      "--data-root",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\audio",
+      "--run-root",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\must_not_train",
+      "--check-only",
+      "--train-manifest",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\main_train.jsonl",
+      "--val-manifest",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\main_val.jsonl",
+      "--test-manifest",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\main_test.jsonl"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "seconds": 2.41,
+    "stdout": "{\n  \"status\": \"INPUT_HEADERS_VALID\",\n  \"records\": {\n    \"train\": 59,\n    \"val\": 12,\n    \"test\": 12\n  },\n  \"data_root\": \"C:\\\\Users\\\\32247\\\\Documents\\\\Codex\\\\2026-11-14\\\\musescore-midi-sqr-midi-type2-type1-2\\\\work\\\\mss-release-preparation\\\\entrypoint-fixture-v2\\\\audio\",\n  \"val_data_root\": \"C:\\\\Users\\\\32247\\\\Documents\\\\Codex\\\\2026-11-14\\\\musescore-midi-sqr-midi-type2-type1-2\\\\work\\\\mss-release-preparation\\\\entrypoint-fixture-v2\\\\audio\",\n  \"test_data_root\": \"C:\\\\Users\\\\32247\\\\Documents\\\\Codex\\\\2026-11-14\\\\musescore-midi-sqr-midi-type2-type1-2\\\\work\\\\mss-release-preparation\\\\entrypoint-fixture-v2\\\\audio\",\n  \"crop_samples\": 179200,\n  \"checks\": \"manifest schema, IDs, paths, headers; no full-waveform or acoustic QA\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "category": "check_only_real_wav_headers",
+    "arguments": [
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\repository\\scripts\\train_PureSwap_E4_1000ep.py",
+      "--data-root",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\audio",
+      "--run-root",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\must_not_train",
+      "--check-only",
+      "--train-manifest",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\main_train.jsonl",
+      "--val-manifest",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\main_val.jsonl",
+      "--test-manifest",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\main_test.jsonl"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "seconds": 2.173,
+    "stdout": "{\n  \"status\": \"INPUT_HEADERS_VALID\",\n  \"records\": {\n    \"train\": 59,\n    \"val\": 12,\n    \"test\": 12\n  },\n  \"data_root\": \"C:\\\\Users\\\\32247\\\\Documents\\\\Codex\\\\2026-11-14\\\\musescore-midi-sqr-midi-type2-type1-2\\\\work\\\\mss-release-preparation\\\\entrypoint-fixture-v2\\\\audio\",\n  \"val_data_root\": \"C:\\\\Users\\\\32247\\\\Documents\\\\Codex\\\\2026-11-14\\\\musescore-midi-sqr-midi-type2-type1-2\\\\work\\\\mss-release-preparation\\\\entrypoint-fixture-v2\\\\audio\",\n  \"test_data_root\": \"C:\\\\Users\\\\32247\\\\Documents\\\\Codex\\\\2026-11-14\\\\musescore-midi-sqr-midi-type2-type1-2\\\\work\\\\mss-release-preparation\\\\entrypoint-fixture-v2\\\\audio\",\n  \"crop_samples\": 179200,\n  \"checks\": \"manifest schema, IDs, paths, headers; no full-waveform or acoustic QA\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "category": "fresh_tiny_checkpoint_cli_inference",
+    "arguments": [
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\repository\\scripts\\evaluate_checkpoint.py",
+      "--config",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\tiny_model.yaml",
+      "--checkpoint",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\untrained.pt",
+      "--manifest",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\tiny_eval_manifest.jsonl",
+      "--root",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\audio",
+      "--output",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\tiny_eval.json"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "seconds": 3.201,
+    "stdout": "Loaded untrained.pt (completed_updates=0)\nConfig param count sanity via build only; evaluating on: C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\tiny_eval_manifest.jsonl\n[eval] mean=-0.01 median=-0.01 type1=-0.01 type2=+nan (n=4)\nWrote C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\tiny_eval.json\n",
+    "stderr": ""
+  },
+  {
+    "category": "refuses_result_overwrite",
+    "arguments": [
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\repository\\scripts\\evaluate_checkpoint.py",
+      "--config",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\tiny_model.yaml",
+      "--checkpoint",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\untrained.pt",
+      "--manifest",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\tiny_eval_manifest.jsonl",
+      "--root",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\audio",
+      "--output",
+      "C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\tiny_eval.json"
+    ],
+    "exit_code": 1,
+    "expected_exit_code": 1,
+    "seconds": 1.889,
+    "stdout": "",
+    "stderr": "Traceback (most recent call last):\n  File \"C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\repository\\scripts\\evaluate_checkpoint.py\", line 198, in <module>\n    main()\n    ~~~~^^\n  File \"C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\repository\\scripts\\evaluate_checkpoint.py\", line 163, in main\n    raise FileExistsError(f\"Choose a new --output; file already exists: {out}\")\nFileExistsError: Choose a new --output; file already exists: C:\\Users\\32247\\Documents\\Codex\\2026-11-14\\musescore-midi-sqr-midi-type2-type1-2\\work\\mss-release-preparation\\entrypoint-fixture-v2\\tiny_eval.json\n"
+  }
+]

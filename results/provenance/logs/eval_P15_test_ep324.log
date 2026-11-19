@@ -1,0 +1,4 @@
+Loaded checkpoint_019175.pt (completed_updates=19175)
+Config param count sanity via build only; evaluating on: /ceph/wanghui/MSS/data/manifests/sqr_paper_split_test.jsonl
+[test_ep324] mean=+2.14 median=+1.62 type1=+1.49 type2=+1.81 (n=48)
+Wrote /ceph/wanghui/MSS/runs/PureSwap_E1cosine-P15_1000ep_p015/checkpoint_019175.test_ep324.json

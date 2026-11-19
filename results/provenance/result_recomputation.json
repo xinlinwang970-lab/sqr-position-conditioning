@@ -1,0 +1,282 @@
+[
+  {
+    "id": "baseline",
+    "path": "runs/author_release_12ep_warmup_cosine/checkpoint_052236.test_eval.json",
+    "sha256": "7a71a224f1eb79a936f7f80d8d9a025503b1905ffc4a7761fa5ce697283ee17d",
+    "keys": [
+      "ckpt",
+      "completed_updates",
+      "summary",
+      "results"
+    ],
+    "summary": {
+      "mean": 1.3268023040145636,
+      "median": 1.160451352596283,
+      "by_part_median": {
+        "violin1": 2.3364733457565308,
+        "violin2": -0.8088349103927612,
+        "viola": 0.9450010061264038,
+        "cello": 2.2386909127235413
+      },
+      "by_layout_median": {
+        "type1": -0.3298855274915695,
+        "type2": 1.636062741279602
+      }
+    },
+    "computed": {
+      "mean_sdr": 1.3268023040145636,
+      "median_sdr": 1.160451352596283,
+      "type1_median": -0.3298855274915695,
+      "type2_median": 1.636062741279602,
+      "n": 48
+    },
+    "saved_summary_difference": {},
+    "works": [
+      "24-Pirates",
+      "26-King",
+      "32-Fugue",
+      "36-Rondeau",
+      "38-Jerusalem",
+      "44-K515"
+    ],
+    "duplicate_queries": 0
+  },
+  {
+    "id": "E1_B",
+    "path": "runs/PureSwap_E1cosine-B_1000ep_p025/checkpoint_016225_ep274_urmp_test.json",
+    "sha256": "324a504b135f37acf7fa568a36c126579f70eeac4918edefc625f3a1287dc015",
+    "keys": [
+      "checkpoint",
+      "epoch",
+      "overall_mean_sdr",
+      "overall_median_sdr",
+      "type1_median",
+      "type2_median",
+      "by_layout",
+      "by_part",
+      "results"
+    ],
+    "summary": {},
+    "computed": {
+      "mean_sdr": 1.6187000633217394,
+      "median_sdr": 1.4363252520561218,
+      "type1_median": 1.3917697668075562,
+      "type2_median": 1.4778105020523071,
+      "n": 48
+    },
+    "saved_summary_difference": {},
+    "works": [
+      "24-Pirates",
+      "26-King",
+      "32-Fugue",
+      "36-Rondeau",
+      "38-Jerusalem",
+      "44-K515"
+    ],
+    "duplicate_queries": 0
+  },
+  {
+    "id": "E2",
+    "path": "runs/PureNoise_E2_300ep_s010/checkpoint_016225.test_ep274.json",
+    "sha256": "67fb5d37c0c036fc2c095c3e37431d513be5fd2b3293c227959801f0fb7b2c64",
+    "keys": [
+      "tag",
+      "summary",
+      "by_track"
+    ],
+    "summary": {
+      "mean_sdr": 1.025635220343247,
+      "median_sdr": 0.8141699433326721,
+      "type1_median": 0.03378530405461788,
+      "type2_median": 1.4813557863235474,
+      "n": 48
+    },
+    "computed": {
+      "mean_sdr": 1.025635220343247,
+      "median_sdr": 0.8141699433326721,
+      "type1_median": 0.03378530405461788,
+      "type2_median": 1.4813557863235474,
+      "n": 48
+    },
+    "saved_summary_difference": {},
+    "works": [
+      "24-Pirates",
+      "26-King",
+      "32-Fugue",
+      "36-Rondeau",
+      "38-Jerusalem",
+      "44-K515"
+    ],
+    "duplicate_queries": 0
+  },
+  {
+    "id": "E3",
+    "path": "runs/PureDrop_E3_300ep_p025/checkpoint_016225.test_ep274.json",
+    "sha256": "2b2610516216cd1a83397c0e0e17d9aaf5850dd5717f903c92be41b8c07fbbc6",
+    "keys": [
+      "tag",
+      "summary",
+      "by_track"
+    ],
+    "summary": {
+      "mean_sdr": 1.4086406012065709,
+      "median_sdr": 1.178147792816162,
+      "type1_median": 0.6771170198917389,
+      "type2_median": 1.6310055255889893,
+      "n": 48
+    },
+    "computed": {
+      "mean_sdr": 1.4086406012065709,
+      "median_sdr": 1.178147792816162,
+      "type1_median": 0.6771170198917389,
+      "type2_median": 1.6310055255889893,
+      "n": 48
+    },
+    "saved_summary_difference": {},
+    "works": [
+      "24-Pirates",
+      "26-King",
+      "32-Fugue",
+      "36-Rondeau",
+      "38-Jerusalem",
+      "44-K515"
+    ],
+    "duplicate_queries": 0
+  },
+  {
+    "id": "P10",
+    "path": "runs/PureSwap_E1cosine-P10_1000ep_p010/checkpoint_025075.test_ep424.json",
+    "sha256": "b14a3a0241bbf2e4925a6b7328d718aa3ff692a18d4dd015ad07cd817a47c435",
+    "keys": [
+      "tag",
+      "summary",
+      "by_track"
+    ],
+    "summary": {
+      "mean_sdr": 2.2076682498833784,
+      "median_sdr": 2.0085562467575073,
+      "type1_median": 1.748030424118042,
+      "type2_median": 2.118944525718689,
+      "n": 48
+    },
+    "computed": {
+      "mean_sdr": 2.2076682498833784,
+      "median_sdr": 2.0085562467575073,
+      "type1_median": 1.748030424118042,
+      "type2_median": 2.118944525718689,
+      "n": 48
+    },
+    "saved_summary_difference": {},
+    "works": [
+      "24-Pirates",
+      "26-King",
+      "32-Fugue",
+      "36-Rondeau",
+      "38-Jerusalem",
+      "44-K515"
+    ],
+    "duplicate_queries": 0
+  },
+  {
+    "id": "P15",
+    "path": "runs/PureSwap_E1cosine-P15_1000ep_p015/checkpoint_025075.test_ep424.json",
+    "sha256": "33f7043efc5ac1688821222dc6f5b5970aa25829cc60d7bde93db9792fb19341",
+    "keys": [
+      "tag",
+      "summary",
+      "by_track"
+    ],
+    "summary": {
+      "mean_sdr": 2.514977579625944,
+      "median_sdr": 2.300746202468872,
+      "type1_median": 2.2651290893554688,
+      "type2_median": 2.300746202468872,
+      "n": 48
+    },
+    "computed": {
+      "mean_sdr": 2.514977579625944,
+      "median_sdr": 2.300746202468872,
+      "type1_median": 2.2651290893554688,
+      "type2_median": 2.300746202468872,
+      "n": 48
+    },
+    "saved_summary_difference": {},
+    "works": [
+      "24-Pirates",
+      "26-King",
+      "32-Fugue",
+      "36-Rondeau",
+      "38-Jerusalem",
+      "44-K515"
+    ],
+    "duplicate_queries": 0
+  },
+  {
+    "id": "P50",
+    "path": "runs/PureSwap_E1cosine-P50_1000ep_p050/checkpoint_025075.test_ep424.json",
+    "sha256": "02f28b884f1d79651d9db9b4d8038d5dfb1a6a0fed482e1e99fcf70acfe33670",
+    "keys": [
+      "tag",
+      "summary",
+      "by_track"
+    ],
+    "summary": {
+      "mean_sdr": 2.2611701086473963,
+      "median_sdr": 1.9238487482070923,
+      "type1_median": 1.9959839582443237,
+      "type2_median": 1.9131900072097778,
+      "n": 48
+    },
+    "computed": {
+      "mean_sdr": 2.2611701086473963,
+      "median_sdr": 1.9238487482070923,
+      "type1_median": 1.9959839582443237,
+      "type2_median": 1.9131900072097778,
+      "n": 48
+    },
+    "saved_summary_difference": {},
+    "works": [
+      "24-Pirates",
+      "26-King",
+      "32-Fugue",
+      "36-Rondeau",
+      "38-Jerusalem",
+      "44-K515"
+    ],
+    "duplicate_queries": 0
+  },
+  {
+    "id": "E4",
+    "path": "runs/PureSwap_E4_1000ep_pinv/checkpoint_025075.test_ep424.json",
+    "sha256": "5d104f5e553d36a8ef25d41d2368fd6ee25de7038671c0c7ca7cf8785f980a69",
+    "keys": [
+      "tag",
+      "summary",
+      "by_track"
+    ],
+    "summary": {
+      "mean_sdr": 2.3167435807796815,
+      "median_sdr": 2.1928662061691284,
+      "type1_median": 2.0913267731666565,
+      "type2_median": 2.1928662061691284,
+      "n": 48
+    },
+    "computed": {
+      "mean_sdr": 2.3167435807796815,
+      "median_sdr": 2.1928662061691284,
+      "type1_median": 2.0913267731666565,
+      "type2_median": 2.1928662061691284,
+      "n": 48
+    },
+    "saved_summary_difference": {},
+    "works": [
+      "24-Pirates",
+      "26-King",
+      "32-Fugue",
+      "36-Rondeau",
+      "38-Jerusalem",
+      "44-K515"
+    ],
+    "duplicate_queries": 0
+  }
+]

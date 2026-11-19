@@ -1,0 +1,348 @@
+{
+  "tag": "test_ep374",
+  "summary": {
+    "mean_sdr": 2.180730481709664,
+    "median_sdr": 1.8101603984832764,
+    "type1_median": 1.4391586184501648,
+    "type2_median": 1.8799951672554016,
+    "n": 48
+  },
+  "by_track": [
+    {
+      "item_id": "1-24-Pirates",
+      "composition_id": "24-Pirates",
+      "part_id": "violin1",
+      "layout_id": "type1",
+      "sdr": 3.2102227210998535
+    },
+    {
+      "item_id": "1-24-Pirates",
+      "composition_id": "24-Pirates",
+      "part_id": "violin2",
+      "layout_id": "type1",
+      "sdr": 2.2280237674713135
+    },
+    {
+      "item_id": "1-24-Pirates",
+      "composition_id": "24-Pirates",
+      "part_id": "viola",
+      "layout_id": "type1",
+      "sdr": 0.9144812226295471
+    },
+    {
+      "item_id": "1-24-Pirates",
+      "composition_id": "24-Pirates",
+      "part_id": "cello",
+      "layout_id": "type1",
+      "sdr": 3.4473726749420166
+    },
+    {
+      "item_id": "1-26-King",
+      "composition_id": "26-King",
+      "part_id": "violin1",
+      "layout_id": "type1",
+      "sdr": 1.132142186164856
+    },
+    {
+      "item_id": "1-26-King",
+      "composition_id": "26-King",
+      "part_id": "violin2",
+      "layout_id": "type1",
+      "sdr": 0.4962405860424042
+    },
+    {
+      "item_id": "1-26-King",
+      "composition_id": "26-King",
+      "part_id": "viola",
+      "layout_id": "type1",
+      "sdr": 1.0306282043457031
+    },
+    {
+      "item_id": "1-26-King",
+      "composition_id": "26-King",
+      "part_id": "cello",
+      "layout_id": "type1",
+      "sdr": 2.3990776538848877
+    },
+    {
+      "item_id": "1-32-Fugue",
+      "composition_id": "32-Fugue",
+      "part_id": "violin1",
+      "layout_id": "type1",
+      "sdr": 3.8604605197906494
+    },
+    {
+      "item_id": "1-32-Fugue",
+      "composition_id": "32-Fugue",
+      "part_id": "violin2",
+      "layout_id": "type1",
+      "sdr": 0.33136340975761414
+    },
+    {
+      "item_id": "1-32-Fugue",
+      "composition_id": "32-Fugue",
+      "part_id": "viola",
+      "layout_id": "type1",
+      "sdr": -0.6989036798477173
+    },
+    {
+      "item_id": "1-32-Fugue",
+      "composition_id": "32-Fugue",
+      "part_id": "cello",
+      "layout_id": "type1",
+      "sdr": 3.8831300735473633
+    },
+    {
+      "item_id": "1-36-Rondeau",
+      "composition_id": "36-Rondeau",
+      "part_id": "violin1",
+      "layout_id": "type1",
+      "sdr": 4.385104656219482
+    },
+    {
+      "item_id": "1-36-Rondeau",
+      "composition_id": "36-Rondeau",
+      "part_id": "violin2",
+      "layout_id": "type1",
+      "sdr": 0.07421056926250458
+    },
+    {
+      "item_id": "1-36-Rondeau",
+      "composition_id": "36-Rondeau",
+      "part_id": "viola",
+      "layout_id": "type1",
+      "sdr": 0.865119457244873
+    },
+    {
+      "item_id": "1-36-Rondeau",
+      "composition_id": "36-Rondeau",
+      "part_id": "cello",
+      "layout_id": "type1",
+      "sdr": 4.792228698730469
+    },
+    {
+      "item_id": "1-38-Jerusalem",
+      "composition_id": "38-Jerusalem",
+      "part_id": "violin1",
+      "layout_id": "type1",
+      "sdr": 3.0747385025024414
+    },
+    {
+      "item_id": "1-38-Jerusalem",
+      "composition_id": "38-Jerusalem",
+      "part_id": "violin2",
+      "layout_id": "type1",
+      "sdr": -1.973949909210205
+    },
+    {
+      "item_id": "1-38-Jerusalem",
+      "composition_id": "38-Jerusalem",
+      "part_id": "viola",
+      "layout_id": "type1",
+      "sdr": -0.6989753842353821
+    },
+    {
+      "item_id": "1-38-Jerusalem",
+      "composition_id": "38-Jerusalem",
+      "part_id": "cello",
+      "layout_id": "type1",
+      "sdr": 5.275554656982422
+    },
+    {
+      "item_id": "1-44-K515",
+      "composition_id": "44-K515",
+      "part_id": "violin1",
+      "layout_id": "type1",
+      "sdr": 1.7461750507354736
+    },
+    {
+      "item_id": "1-44-K515",
+      "composition_id": "44-K515",
+      "part_id": "violin2",
+      "layout_id": "type1",
+      "sdr": -0.4372480809688568
+    },
+    {
+      "item_id": "1-44-K515",
+      "composition_id": "44-K515",
+      "part_id": "viola",
+      "layout_id": "type1",
+      "sdr": -0.04004847630858421
+    },
+    {
+      "item_id": "1-44-K515",
+      "composition_id": "44-K515",
+      "part_id": "cello",
+      "layout_id": "type1",
+      "sdr": 5.270998477935791
+    },
+    {
+      "item_id": "2-24-Pirates",
+      "composition_id": "24-Pirates",
+      "part_id": "violin1",
+      "layout_id": "type2",
+      "sdr": 1.874145746231079
+    },
+    {
+      "item_id": "2-24-Pirates",
+      "composition_id": "24-Pirates",
+      "part_id": "violin2",
+      "layout_id": "type2",
+      "sdr": 3.4884848594665527
+    },
+    {
+      "item_id": "2-24-Pirates",
+      "composition_id": "24-Pirates",
+      "part_id": "viola",
+      "layout_id": "type2",
+      "sdr": 1.8858445882797241
+    },
+    {
+      "item_id": "2-24-Pirates",
+      "composition_id": "24-Pirates",
+      "part_id": "cello",
+      "layout_id": "type2",
+      "sdr": 4.49802827835083
+    },
+    {
+      "item_id": "2-26-King",
+      "composition_id": "26-King",
+      "part_id": "violin1",
+      "layout_id": "type2",
+      "sdr": -0.38836532831192017
+    },
+    {
+      "item_id": "2-26-King",
+      "composition_id": "26-King",
+      "part_id": "violin2",
+      "layout_id": "type2",
+      "sdr": 0.5640509724617004
+    },
+    {
+      "item_id": "2-26-King",
+      "composition_id": "26-King",
+      "part_id": "viola",
+      "layout_id": "type2",
+      "sdr": 1.542595386505127
+    },
+    {
+      "item_id": "2-26-King",
+      "composition_id": "26-King",
+      "part_id": "cello",
+      "layout_id": "type2",
+      "sdr": 4.3175048828125
+    },
+    {
+      "item_id": "2-32-Fugue",
+      "composition_id": "32-Fugue",
+      "part_id": "violin1",
+      "layout_id": "type2",
+      "sdr": 2.83767032623291
+    },
+    {
+      "item_id": "2-32-Fugue",
+      "composition_id": "32-Fugue",
+      "part_id": "violin2",
+      "layout_id": "type2",
+      "sdr": 1.9210495948791504
+    },
+    {
+      "item_id": "2-32-Fugue",
+      "composition_id": "32-Fugue",
+      "part_id": "viola",
+      "layout_id": "type2",
+      "sdr": 0.3883844316005707
+    },
+    {
+      "item_id": "2-32-Fugue",
+      "composition_id": "32-Fugue",
+      "part_id": "cello",
+      "layout_id": "type2",
+      "sdr": 5.569949626922607
+    },
+    {
+      "item_id": "2-36-Rondeau",
+      "composition_id": "36-Rondeau",
+      "part_id": "violin1",
+      "layout_id": "type2",
+      "sdr": 3.6793951988220215
+    },
+    {
+      "item_id": "2-36-Rondeau",
+      "composition_id": "36-Rondeau",
+      "part_id": "violin2",
+      "layout_id": "type2",
+      "sdr": 1.3484411239624023
+    },
+    {
+      "item_id": "2-36-Rondeau",
+      "composition_id": "36-Rondeau",
+      "part_id": "viola",
+      "layout_id": "type2",
+      "sdr": 1.2822569608688354
+    },
+    {
+      "item_id": "2-36-Rondeau",
+      "composition_id": "36-Rondeau",
+      "part_id": "cello",
+      "layout_id": "type2",
+      "sdr": 5.727596759796143
+    },
+    {
+      "item_id": "2-38-Jerusalem",
+      "composition_id": "38-Jerusalem",
+      "part_id": "violin1",
+      "layout_id": "type2",
+      "sdr": 3.0208916664123535
+    },
+    {
+      "item_id": "2-38-Jerusalem",
+      "composition_id": "38-Jerusalem",
+      "part_id": "violin2",
+      "layout_id": "type2",
+      "sdr": -0.9853982925415039
+    },
+    {
+      "item_id": "2-38-Jerusalem",
+      "composition_id": "38-Jerusalem",
+      "part_id": "viola",
+      "layout_id": "type2",
+      "sdr": 0.20433935523033142
+    },
+    {
+      "item_id": "2-38-Jerusalem",
+      "composition_id": "38-Jerusalem",
+      "part_id": "cello",
+      "layout_id": "type2",
+      "sdr": 7.167454242706299
+    },
+    {
+      "item_id": "2-44-K515",
+      "composition_id": "44-K515",
+      "part_id": "violin1",
+      "layout_id": "type2",
+      "sdr": 1.6695010662078857
+    },
+    {
+      "item_id": "2-44-K515",
+      "composition_id": "44-K515",
+      "part_id": "violin2",
+      "layout_id": "type2",
+      "sdr": 0.23204883933067322
+    },
+    {
+      "item_id": "2-44-K515",
+      "composition_id": "44-K515",
+      "part_id": "viola",
+      "layout_id": "type2",
+      "sdr": 0.6211846470832825
+    },
+    {
+      "item_id": "2-44-K515",
+      "composition_id": "44-K515",
+      "part_id": "cello",
+      "layout_id": "type2",
+      "sdr": 7.6398606300354
+    }
+  ]
+}

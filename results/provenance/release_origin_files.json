@@ -1,0 +1,528 @@
+{
+  "source": "G:\\MSS\\github_release",
+  "files": [
+    {
+      "path": ".gitignore",
+      "bytes": 576,
+      "sha256": "84236b2f4a6fd21a2a58af071549d67882ea63f7dd0464ef1058169492bcb3e7"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "bytes": 3942,
+      "sha256": "fddea27ede1d233f7aec000331054b10d9c0664c279d70f48f193ac705fd3896"
+    },
+    {
+      "path": "CITATION.cff",
+      "bytes": 766,
+      "sha256": "4cbdbd9f02b317a8014082de195b7362f67c301499162a760699c2b5a04092a7"
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "bytes": 4486,
+      "sha256": "5cca5c8e6e295cf53586506ec7270df83dfd7df61e373d51d5f3d7a68a6b02bb"
+    },
+    {
+      "path": "LICENSE",
+      "bytes": 1087,
+      "sha256": "712d2c70b52d161250404e7f0bdc63890b658f927ce00c493a4782787df1b6e0"
+    },
+    {
+      "path": "pyproject.toml",
+      "bytes": 537,
+      "sha256": "a67f8943a54b7d20d8773d48372e245cfe9c7173ff8c70c42f27f04356b77138"
+    },
+    {
+      "path": "README.md",
+      "bytes": 10127,
+      "sha256": "83838d35512050776e9aa65bbc5584b923fc4243b530f027fb80065b69c2bf07"
+    },
+    {
+      "path": "REPRODUCIBILITY.md",
+      "bytes": 7289,
+      "sha256": "b4b2dff6310189a0deee3790548b61b336943ea234044e52acdc26a1cad07665"
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/bug_report.yml",
+      "bytes": 2080,
+      "sha256": "fe167cbb9e838a527a6f3cf14a1863bd729f3651cc120f58e184e9c33818b4e6"
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/reproduction_request.yml",
+      "bytes": 2371,
+      "sha256": "1bb606e6911762e6405e5dc98de6508f2a9b6bc45594cdef89ee2e1b961ff782"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "bytes": 717,
+      "sha256": "51686f66e653a4b264665e9604e738e1211dd036ee9be9ac2c43782fcc6330f0"
+    },
+    {
+      "path": "configs/author_release_12ep_warmup_cosine.yaml",
+      "bytes": 2163,
+      "sha256": "78cebee177307a8578342d59eef1cc42379fcf112177e9f29f2bcdf055e8ff1e"
+    },
+    {
+      "path": "configs/PureDrop_E3_300ep_p025.yaml",
+      "bytes": 2562,
+      "sha256": "3f19a2c4d9f0dd92af310529c1ddcb9de4f596d7842af0fa8a1365acaf653422"
+    },
+    {
+      "path": "configs/PureNoise_E2_300ep_s010.yaml",
+      "bytes": 2556,
+      "sha256": "88a5be45f751be82c6d710a733cbca0998eabd8c8a5ff2f2b8930b1596a773d3"
+    },
+    {
+      "path": "configs/PureSwap_E1cosine-B_1000ep.yaml",
+      "bytes": 2175,
+      "sha256": "668d7675a011fac8ae2a93e2ac75a96bfe7737c399949bba53296871c7eb7576"
+    },
+    {
+      "path": "configs/PureSwap_E1cosine-P10_1000ep.yaml",
+      "bytes": 2575,
+      "sha256": "fe5fe9ad3df690e7a417616313b36441b4f75752aaa1dcff01506658b718a1b6"
+    },
+    {
+      "path": "configs/PureSwap_E1cosine-P15_1000ep.yaml",
+      "bytes": 2574,
+      "sha256": "21ba918454c727ddcea850b566574a6032d4a9645142241f87f7199f6d959524"
+    },
+    {
+      "path": "configs/PureSwap_E1cosine-P50_1000ep.yaml",
+      "bytes": 2543,
+      "sha256": "61b0b33e8f4fc993b75ae70af658eaa8960ecd777133e2c92706bc32bec61597"
+    },
+    {
+      "path": "configs/PureSwap_E4_1000ep.yaml",
+      "bytes": 2368,
+      "sha256": "f112b02c4a338a5f15fcd37555e9282a1faf8d448c7833ea7dd0bfdd91f69791"
+    },
+    {
+      "path": "docs/AUDIT_REPORT.md",
+      "bytes": 15506,
+      "sha256": "2e1aced82eb641ea25e638e1b214a7d187f63c34564dcf635a934ff13e4207e9"
+    },
+    {
+      "path": "docs/E1-4_DESIGN.md",
+      "bytes": 10015,
+      "sha256": "ce96ef5d73b4c273a21312b00ec1d51bf4fbca6d078aeb7c607b4e7bc34f497e"
+    },
+    {
+      "path": "docs/EXPERIMENT_REPORT.md",
+      "bytes": 12578,
+      "sha256": "925d60601ad56fb3ef3268efe9124f77cf72a6682bbb6bcadb89f951b0959182"
+    },
+    {
+      "path": "manifests/sqr_paper_split_test.jsonl",
+      "bytes": 15786,
+      "sha256": "b89d8165df9d01e8dba266aa29615944d2b4ebd3da803ab2f34aca763db39ed1"
+    },
+    {
+      "path": "manifests/sqr_paper_split_train.jsonl",
+      "bytes": 86961,
+      "sha256": "62958250ca2e4aded61f27ea09eef767b0cf17eb753fdbe2ad6dd7a11b03b934"
+    },
+    {
+      "path": "manifests/sqr_paper_split_val.jsonl",
+      "bytes": 17468,
+      "sha256": "ca682507d6954517742d459ae9cde59a8cee633c8d4924dab00e9fa3201379d6"
+    },
+    {
+      "path": "results/checkpoint_evals/E1cosineB_test_ep274.json",
+      "bytes": 8989,
+      "sha256": "324a504b135f37acf7fa568a36c126579f70eeac4918edefc625f3a1287dc015"
+    },
+    {
+      "path": "results/checkpoint_evals/E2_test_ep274.json",
+      "bytes": 8349,
+      "sha256": "67fb5d37c0c036fc2c095c3e37431d513be5fd2b3293c227959801f0fb7b2c64"
+    },
+    {
+      "path": "results/checkpoint_evals/E3_test_ep274.json",
+      "bytes": 8344,
+      "sha256": "2b2610516216cd1a83397c0e0e17d9aaf5850dd5717f903c92be41b8c07fbbc6"
+    },
+    {
+      "path": "results/checkpoint_evals/E4_test_ep424.json",
+      "bytes": 8334,
+      "sha256": "5d104f5e553d36a8ef25d41d2368fd6ee25de7038671c0c7ca7cf8785f980a69"
+    },
+    {
+      "path": "results/checkpoint_evals/P10_test_ep424.json",
+      "bytes": 8329,
+      "sha256": "b14a3a0241bbf2e4925a6b7328d718aa3ff692a18d4dd015ad07cd817a47c435"
+    },
+    {
+      "path": "results/checkpoint_evals/P15_test_ep424.json",
+      "bytes": 8328,
+      "sha256": "33f7043efc5ac1688821222dc6f5b5970aa25829cc60d7bde93db9792fb19341"
+    },
+    {
+      "path": "results/checkpoint_evals/P50_test_ep424.json",
+      "bytes": 8331,
+      "sha256": "02f28b884f1d79651d9db9b4d8038d5dfb1a6a0fed482e1e99fcf70acfe33670"
+    },
+    {
+      "path": "results/test_results/author_release_12ep_warmup_cosine_test_results.json",
+      "bytes": 5760,
+      "sha256": "e400788ff0bd5d05edbef253f0a15d5817d898a14303dd7e0baddf48cdda9f5e"
+    },
+    {
+      "path": "results/test_results/PureDrop_E3_300ep_p025_test_results.json",
+      "bytes": 6785,
+      "sha256": "fc5fcef404f53a63a5338e04e302dff05ac3bc5c890a0037b5e17ac5ff0fbf69"
+    },
+    {
+      "path": "results/test_results/PureNoise_E2_300ep_s010_test_results.json",
+      "bytes": 6790,
+      "sha256": "6598e50d34f918fb0ded27609f1faf53dd79b32fd19ca667fddb7c20d61a5d7f"
+    },
+    {
+      "path": "results/test_results/PureSwap_E4_1000ep_pinv_test_results.json",
+      "bytes": 6765,
+      "sha256": "a407d3c8bcaa1e2cf46868033be806da8a8795afe7463c74e33983e1683b0e3b"
+    },
+    {
+      "path": "scripts/build_data_split_manifests.py",
+      "bytes": 6980,
+      "sha256": "e681da9c00e54d76972f04ad0c8808cfc0cf0e090b85c989822f0a284ef2cc75"
+    },
+    {
+      "path": "scripts/evaluate_checkpoint.py",
+      "bytes": 6503,
+      "sha256": "48600e77326df4dbf193b465d88403cb38caddb33bc0a80c89a659a61b7c6c63"
+    },
+    {
+      "path": "scripts/train_author_release_12ep_warmup_cosine.py",
+      "bytes": 16784,
+      "sha256": "9b1ad2ebbcfd98a97f7bf2b20319461b89b8345973af0b26adf305893a772860"
+    },
+    {
+      "path": "scripts/train_PureDrop_E3_300ep.py",
+      "bytes": 19024,
+      "sha256": "bcafdec77de585ef8896e89b935ab9c125b2de8512233aeab81300f9f34a8e48"
+    },
+    {
+      "path": "scripts/train_PureNoise_E2_300ep.py",
+      "bytes": 19133,
+      "sha256": "31b357b1f899da4e534b442a14b8592111bf7552af0801226262af5fc331146d"
+    },
+    {
+      "path": "scripts/train_PureSwap_E1cosine-B_1000ep.py",
+      "bytes": 15536,
+      "sha256": "fe1930249df407fdcaf8d1ec99e572137930d6593a40af5b5d4f2d46590f4956"
+    },
+    {
+      "path": "scripts/train_PureSwap_E1cosine-P10_1000ep.py",
+      "bytes": 18336,
+      "sha256": "0f2471c41092d3b5c7a59171bac5ed45e3aeb166ad7d5cb613a004d91cf6ae49"
+    },
+    {
+      "path": "scripts/train_PureSwap_E1cosine-P15_1000ep.py",
+      "bytes": 18336,
+      "sha256": "988406cfc871f6d0368774aaeae7a86620f43bb886080602075259a391fcb802"
+    },
+    {
+      "path": "scripts/train_PureSwap_E1cosine-P50_1000ep.py",
+      "bytes": 18324,
+      "sha256": "0a668e976bca922279687128118f751d4e39abe349f6b50a141bc672ce5c7ae6"
+    },
+    {
+      "path": "scripts/train_PureSwap_E4_1000ep.py",
+      "bytes": 15354,
+      "sha256": "7670010d0bd3956945edcb1c02365922075bed72b325a18d36fac5f3720c32df"
+    },
+    {
+      "path": "src/sqr_repro/audio.py",
+      "bytes": 5045,
+      "sha256": "84e3e5d8ba981a846ffbf56938a51383e376aec6f9e333aad9ea388f241845fb"
+    },
+    {
+      "path": "src/sqr_repro/bn_counterfactual.py",
+      "bytes": 14103,
+      "sha256": "57fb4673264b3d18b5da7027c14e121d806b3180819bd40184da32b0fd802af1"
+    },
+    {
+      "path": "src/sqr_repro/checkpoint.py",
+      "bytes": 4693,
+      "sha256": "0aa4f04d576bc02b6db38f45a4bc90d1fb1843c55f0fefd23c9b4cf4b8631d28"
+    },
+    {
+      "path": "src/sqr_repro/common_loss_ablation.py",
+      "bytes": 7262,
+      "sha256": "0f399637d494972485bacf6f147c296a38f10fb8b4129f64eca32e8ec3d0034f"
+    },
+    {
+      "path": "src/sqr_repro/config.py",
+      "bytes": 11760,
+      "sha256": "081e96f65e37a47505a16a5a5a28a311ea5ab3aa4fa3e48e943237821635ca7d"
+    },
+    {
+      "path": "src/sqr_repro/coverage.py",
+      "bytes": 21112,
+      "sha256": "5c75d498af2e01c761f74aef6c4b8e508fc1ef6ed19acd20c24ef87988ec5b6e"
+    },
+    {
+      "path": "src/sqr_repro/data.py",
+      "bytes": 4159,
+      "sha256": "bc6f8da06f00224669ae2c59e3875c41d613a48dccc2014ebdeb396863796d24"
+    },
+    {
+      "path": "src/sqr_repro/fixtures.py",
+      "bytes": 2184,
+      "sha256": "71e695a8c588d3f55d36bb51a3565412a184d67822938f9a09155cbfef9d87ce"
+    },
+    {
+      "path": "src/sqr_repro/linear_pan.py",
+      "bytes": 2936,
+      "sha256": "4de553120c1bbd7c06490f31922109b9b3f75edbde74736dde76f14b9e305746"
+    },
+    {
+      "path": "src/sqr_repro/losses.py",
+      "bytes": 2553,
+      "sha256": "7de85848279058ae756ff8d48cc9935535d1084132424158fabced85deec8674"
+    },
+    {
+      "path": "src/sqr_repro/paired.py",
+      "bytes": 3151,
+      "sha256": "66b729b8a909fa95a623c5bde7c934ae064d3f2a7b52394fc1cc10f5bdb53bd6"
+    },
+    {
+      "path": "src/sqr_repro/paper_c0_contract.py",
+      "bytes": 15891,
+      "sha256": "88dd285e0917cb3787c650b185cc9d90e785be17bf41abbccb6cd3d65a043c54"
+    },
+    {
+      "path": "src/sqr_repro/profiling.py",
+      "bytes": 1546,
+      "sha256": "1e00cfd7335ada76d84a930047b82be507f8c76af48443ed1723e6a2b554946e"
+    },
+    {
+      "path": "src/sqr_repro/projection_eval.py",
+      "bytes": 6650,
+      "sha256": "186459a547784f962487c5d0154a7d60bc1a8a7f883a9ec2824268e456cb2c00"
+    },
+    {
+      "path": "src/sqr_repro/resume.py",
+      "bytes": 31450,
+      "sha256": "96325cf1b24ad611ebbfe431c58340c56eadbc056f215e92b87445998fd9528c"
+    },
+    {
+      "path": "src/sqr_repro/scene_diagnostic.py",
+      "bytes": 17912,
+      "sha256": "00c8adc8336170be45e72784ccf12395b0f4ad92017a39756701b637906ea542"
+    },
+    {
+      "path": "src/sqr_repro/score.py",
+      "bytes": 4384,
+      "sha256": "adb39173add4a1a494555eed8eb2d88b7a0e36413dbfbc54abad990ec8a7db62"
+    },
+    {
+      "path": "src/sqr_repro/score_coverage.py",
+      "bytes": 8333,
+      "sha256": "76cbeb94cb6455cea7c0850ed46628223a4841bb0ab9a02c89fa703910d27bee"
+    },
+    {
+      "path": "src/sqr_repro/score_coverage_runner.py",
+      "bytes": 19373,
+      "sha256": "83229a4e6e74052ecbcc2675590f07007ee30446b0ac75fc828cc1628c8a3155"
+    },
+    {
+      "path": "src/sqr_repro/score_route.py",
+      "bytes": 15400,
+      "sha256": "308d792e9ef08dc1d9faa8717804a741ab9f80c5b82d5a740bf728b4bc7530ee"
+    },
+    {
+      "path": "src/sqr_repro/score_toy.py",
+      "bytes": 13550,
+      "sha256": "8dbea867d8539754a309a7a385724760cac163ac4c541854d3b22a9a2eb0f207"
+    },
+    {
+      "path": "src/sqr_repro/toy.py",
+      "bytes": 21402,
+      "sha256": "618116a8b2a669d5e581028746ddf7f1fdff0caf6fa1b7bf679aaa8994db49b8"
+    },
+    {
+      "path": "src/sqr_repro/toy_eval.py",
+      "bytes": 15274,
+      "sha256": "91c7fd562e55865c81081295f06c109e6d7a6cd6c5b109704c5ebb94d3ac9000"
+    },
+    {
+      "path": "src/sqr_repro/trainer.py",
+      "bytes": 20617,
+      "sha256": "e395eba0b03d3c3ce8c1a946a38ceab9de580d428070d6276f25a4ebecbb6c5e"
+    },
+    {
+      "path": "src/sqr_repro/__init__.py",
+      "bytes": 84,
+      "sha256": "1c1f370d30a75007083d278bdab515f3e3a252a2d1e1dc36074f31b7a372ca35"
+    },
+    {
+      "path": "src/sqr_repro/__main__.py",
+      "bytes": 15128,
+      "sha256": "18a2b6698beb0e4c2c1e760eb512134201c71a17af04fef9d4f264465cd41dc9"
+    },
+    {
+      "path": "src/sqr_repro/models/blocks.py",
+      "bytes": 3005,
+      "sha256": "2aff36dbc6541f2d9ac45df2205a2fcbca6947a9c229a498a34d716b9ade05d3"
+    },
+    {
+      "path": "src/sqr_repro/models/conditioning.py",
+      "bytes": 3394,
+      "sha256": "ee6402a27fcf4aa548b654a6367f58526fcf07ce24f74a1becce31dd55117823"
+    },
+    {
+      "path": "src/sqr_repro/models/score_encoder.py",
+      "bytes": 2725,
+      "sha256": "8da4d60d2550fb3381663a2da6b122dd8ef0df878730ed8812e97fbcee38431f"
+    },
+    {
+      "path": "src/sqr_repro/models/separator.py",
+      "bytes": 13467,
+      "sha256": "72c8edda406d6b0a57a675b54482ca855197c15cd6647af440d2c7e41d668d3c"
+    },
+    {
+      "path": "src/sqr_repro/models/__init__.py",
+      "bytes": 176,
+      "sha256": "181f7aa8e50b5da81d7decb7fd586383bfbe10c2e68f9a6052a99767f2dd0e16"
+    },
+    {
+      "path": "src/sqr_repro/paper_c0/dataset.py",
+      "bytes": 8631,
+      "sha256": "0225c3f8ebf18901c2e8ec445348a2e867b3d3e98450243bf1a6e2ff05340eb5"
+    },
+    {
+      "path": "src/sqr_repro/paper_c0/evaluator.py",
+      "bytes": 8491,
+      "sha256": "07862d3f10a863302298411ec5e77108ffee7cfc6a4f04384e2baa342657e5fb"
+    },
+    {
+      "path": "src/sqr_repro/paper_c0/metrics.py",
+      "bytes": 3572,
+      "sha256": "048f8759bc6c5eb73a1255dea3026f71b429b92941ba5f0032f74154c1733c5c"
+    },
+    {
+      "path": "src/sqr_repro/paper_c0/model_factory.py",
+      "bytes": 7939,
+      "sha256": "86b3f0c76b1d31790336bf849b66c7dccd8c21753659fd49f3b6db636c257273"
+    },
+    {
+      "path": "src/sqr_repro/paper_c0/portable.py",
+      "bytes": 3339,
+      "sha256": "cc55804dac0d0cf3e2597309773609f04ce91aec7b17281a5910c1ce44202539"
+    },
+    {
+      "path": "src/sqr_repro/paper_c0/real_pilot.py",
+      "bytes": 5904,
+      "sha256": "889990f5b9044527ddbfe2480d8e010ed745b3458538de17c9adfaf0a34498fa"
+    },
+    {
+      "path": "src/sqr_repro/paper_c0/target_smoke.py",
+      "bytes": 5909,
+      "sha256": "79068543c16381fbaacd0bc2ea685d1d5090fc8777c0fa7e53eaded5cb33bff3"
+    },
+    {
+      "path": "src/sqr_repro/paper_c0/trainer.py",
+      "bytes": 13784,
+      "sha256": "df9bb37bc363f3eba398db43034a25201c831f4ba50d8ca7dded3debc8b4aeb8"
+    },
+    {
+      "path": "src/sqr_repro/paper_c0/waveform.py",
+      "bytes": 7387,
+      "sha256": "4113305fff7fff1b7dd1ecbe7af7ee45f6654d7af97fc9d0c3d263def6ede649"
+    },
+    {
+      "path": "src/sqr_repro/paper_c0/__init__.py",
+      "bytes": 198,
+      "sha256": "5d65ea49130e54de45c6ae17e828e328e7ee1ba286ec3adca5a3b430f0be0ee1"
+    },
+    {
+      "path": "tests/test_audio.py",
+      "bytes": 908,
+      "sha256": "02fbac835e0eb502c31d8f0cd3c06b5ac223b910cc2479525b136333f38c7189"
+    },
+    {
+      "path": "tests/test_checkpoint_roundtrip.py",
+      "bytes": 1775,
+      "sha256": "90faa6b3771f93568658714316981bb4f89105fb0e672dbd0de995f2a0a628df"
+    },
+    {
+      "path": "tests/test_common_consistency_loss.py",
+      "bytes": 2637,
+      "sha256": "99eb814e06e157321c27c111e696a817e2f288977df8da3ee1ed8e303af4f766"
+    },
+    {
+      "path": "tests/test_condition_embedding.py",
+      "bytes": 827,
+      "sha256": "f531cedc013b5b2b8f10d0344887e51ed9ce4be9bde957601bc5bb7f04d0f8e9"
+    },
+    {
+      "path": "tests/test_config.py",
+      "bytes": 1184,
+      "sha256": "1f67717baf9b923088c456b05c3547822688380593302efd5dbe748f4f162589"
+    },
+    {
+      "path": "tests/test_controller_shapes_and_bn.py",
+      "bytes": 1805,
+      "sha256": "991a45115e2a9615c44fef1dc6042e3f5d3c94989d17fc466713e6440f1699ec"
+    },
+    {
+      "path": "tests/test_data.py",
+      "bytes": 1856,
+      "sha256": "7075fde333441c4e52a6d79f7cc618059bf2cc27f46f877c8a7f9e39fb737102"
+    },
+    {
+      "path": "tests/test_gpocm_formula.py",
+      "bytes": 1079,
+      "sha256": "ecfd2464610f14132e6d4c643aead1beb25c86ad13ba3363bdcab27040efe5f7"
+    },
+    {
+      "path": "tests/test_gradient_flow.py",
+      "bytes": 1955,
+      "sha256": "10eaa72e07e813249a990674e376facc55ab02c0037b69988f5e9edf039ab0c5"
+    },
+    {
+      "path": "tests/fixtures/audit_math_tiny.yaml",
+      "bytes": 1897,
+      "sha256": "3c7b7abe4b9a33c3df72de17f6229bf59ef643ef18b3d19abc6a02a8ee7b0105"
+    },
+    {
+      "path": "tests/fixtures/debug_cpu.yaml",
+      "bytes": 1872,
+      "sha256": "c85df552bfd887269d51d38688dda1053a833aa70d5398ac311c3d77d6915d4f"
+    },
+    {
+      "path": "tests/fixtures/reimpl_w24.yaml",
+      "bytes": 1917,
+      "sha256": "9e85d563bb24c0011bca869e1bca9417a2d416bba00559934193115eaeef0be5"
+    }
+  ],
+  "skipped": [],
+  "git": {
+    "head": {
+      "return_code": 0,
+      "output": "0f6f63c587672f68086c6a1a1dff3d018d81d179\n",
+      "error": ""
+    },
+    "status": {
+      "return_code": 0,
+      "output": " M configs/PureSwap_E1cosine-B_1000ep.yaml\n M configs/PureSwap_E4_1000ep.yaml\n M configs/author_release_12ep_warmup_cosine.yaml\n M pyproject.toml\n M results/checkpoint_evals/E1cosineB_test_ep274.json\n M results/test_results/PureSwap_E4_1000ep_pinv_test_results.json\n M results/test_results/author_release_12ep_warmup_cosine_test_results.json\n M scripts/train_PureNoise_E2_300ep.py\n M scripts/train_PureSwap_E1cosine-B_1000ep.py\n M scripts/train_PureSwap_E1cosine-P50_1000ep.py\n M scripts/train_PureSwap_E4_1000ep.py\n M scripts/train_author_release_12ep_warmup_cosine.py\n M src/sqr_repro/__init__.py\n M src/sqr_repro/__main__.py\n M src/sqr_repro/audio.py\n M src/sqr_repro/bn_counterfactual.py\n M src/sqr_repro/checkpoint.py\n M src/sqr_repro/common_loss_ablation.py\n M src/sqr_repro/config.py\n M src/sqr_repro/coverage.py\n M src/sqr_repro/data.py\n M src/sqr_repro/fixtures.py\n M src/sqr_repro/linear_pan.py\n M src/sqr_repro/losses.py\n M src/sqr_repro/models/__init__.py\n M src/sqr_repro/models/blocks.py\n M src/sqr_repro/models/conditioning.py\n M src/sqr_repro/models/score_encoder.py\n M src/sqr_repro/models/separator.py\n M src/sqr_repro/paired.py\n M src/sqr_repro/paper_c0/__init__.py\n M src/sqr_repro/paper_c0/dataset.py\n M src/sqr_repro/paper_c0/evaluator.py\n M src/sqr_repro/paper_c0/metrics.py\n M src/sqr_repro/paper_c0/model_factory.py\n M src/sqr_repro/paper_c0/portable.py\n M src/sqr_repro/paper_c0/real_pilot.py\n M src/sqr_repro/paper_c0/target_smoke.py\n M src/sqr_repro/paper_c0/trainer.py\n M src/sqr_repro/paper_c0/waveform.py\n M src/sqr_repro/paper_c0_contract.py\n M src/sqr_repro/profiling.py\n M src/sqr_repro/projection_eval.py\n M src/sqr_repro/resume.py\n M src/sqr_repro/scene_diagnostic.py\n M src/sqr_repro/score.py\n M src/sqr_repro/score_coverage.py\n M src/sqr_repro/score_coverage_runner.py\n M src/sqr_repro/score_route.py\n M src/sqr_repro/score_toy.py\n M src/sqr_repro/toy.py\n M src/sqr_repro/toy_eval.py\n M src/sqr_repro/trainer.py\n M tests/fixtures/audit_math_tiny.yaml\n M tests/fixtures/debug_cpu.yaml\n M tests/fixtures/reimpl_w24.yaml\n M tests/test_audio.py\n M tests/test_checkpoint_roundtrip.py\n M tests/test_common_consistency_loss.py\n M tests/test_condition_embedding.py\n M tests/test_config.py\n M tests/test_controller_shapes_and_bn.py\n M tests/test_data.py\n M tests/test_gpocm_formula.py\n M tests/test_gradient_flow.py\n",
+      "error": ""
+    },
+    "tracked": {
+      "return_code": 0,
+      "output": ".github/ISSUE_TEMPLATE/bug_report.yml\n.github/ISSUE_TEMPLATE/reproduction_request.yml\n.github/workflows/ci.yml\n.gitignore\nCHANGELOG.md\nCITATION.cff\nCONTRIBUTING.md\nLICENSE\nREADME.md\nREPRODUCIBILITY.md\nconfigs/PureDrop_E3_300ep_p025.yaml\nconfigs/PureNoise_E2_300ep_s010.yaml\nconfigs/PureSwap_E1cosine-B_1000ep.yaml\nconfigs/PureSwap_E1cosine-P10_1000ep.yaml\nconfigs/PureSwap_E1cosine-P15_1000ep.yaml\nconfigs/PureSwap_E1cosine-P50_1000ep.yaml\nconfigs/PureSwap_E4_1000ep.yaml\nconfigs/author_release_12ep_warmup_cosine.yaml\ndocs/AUDIT_REPORT.md\ndocs/E1-4_DESIGN.md\ndocs/EXPERIMENT_REPORT.md\nmanifests/sqr_paper_split_test.jsonl\nmanifests/sqr_paper_split_train.jsonl\nmanifests/sqr_paper_split_val.jsonl\npyproject.toml\nresults/checkpoint_evals/E1cosineB_test_ep274.json\nresults/checkpoint_evals/E2_test_ep274.json\nresults/checkpoint_evals/E3_test_ep274.json\nresults/checkpoint_evals/E4_test_ep424.json\nresults/checkpoint_evals/P10_test_ep424.json\nresults/checkpoint_evals/P15_test_ep424.json\nresults/checkpoint_evals/P50_test_ep424.json\nresults/test_results/PureDrop_E3_300ep_p025_test_results.json\nresults/test_results/PureNoise_E2_300ep_s010_test_results.json\nresults/test_results/PureSwap_E4_1000ep_pinv_test_results.json\nresults/test_results/author_release_12ep_warmup_cosine_test_results.json\nscripts/build_data_split_manifests.py\nscripts/evaluate_checkpoint.py\nscripts/train_PureDrop_E3_300ep.py\nscripts/train_PureNoise_E2_300ep.py\nscripts/train_PureSwap_E1cosine-B_1000ep.py\nscripts/train_PureSwap_E1cosine-P10_1000ep.py\nscripts/train_PureSwap_E1cosine-P15_1000ep.py\nscripts/train_PureSwap_E1cosine-P50_1000ep.py\nscripts/train_PureSwap_E4_1000ep.py\nscripts/train_author_release_12ep_warmup_cosine.py\nsrc/sqr_repro/__init__.py\nsrc/sqr_repro/__main__.py\nsrc/sqr_repro/audio.py\nsrc/sqr_repro/bn_counterfactual.py\nsrc/sqr_repro/checkpoint.py\nsrc/sqr_repro/common_loss_ablation.py\nsrc/sqr_repro/config.py\nsrc/sqr_repro/coverage.py\nsrc/sqr_repro/data.py\nsrc/sqr_repro/fixtures.py\nsrc/sqr_repro/linear_pan.py\nsrc/sqr_repro/losses.py\nsrc/sqr_repro/models/__init__.py\nsrc/sqr_repro/models/blocks.py\nsrc/sqr_repro/models/conditioning.py\nsrc/sqr_repro/models/score_encoder.py\nsrc/sqr_repro/models/separator.py\nsrc/sqr_repro/paired.py\nsrc/sqr_repro/paper_c0/__init__.py\nsrc/sqr_repro/paper_c0/dataset.py\nsrc/sqr_repro/paper_c0/evaluator.py\nsrc/sqr_repro/paper_c0/metrics.py\nsrc/sqr_repro/paper_c0/model_factory.py\nsrc/sqr_repro/paper_c0/portable.py\nsrc/sqr_repro/paper_c0/real_pilot.py\nsrc/sqr_repro/paper_c0/target_smoke.py\nsrc/sqr_repro/paper_c0/trainer.py\nsrc/sqr_repro/paper_c0/waveform.py\nsrc/sqr_repro/paper_c0_contract.py\nsrc/sqr_repro/profiling.py\nsrc/sqr_repro/projection_eval.py\nsrc/sqr_repro/resume.py\nsrc/sqr_repro/scene_diagnostic.py\nsrc/sqr_repro/score.py\nsrc/sqr_repro/score_coverage.py\nsrc/sqr_repro/score_coverage_runner.py\nsrc/sqr_repro/score_route.py\nsrc/sqr_repro/score_toy.py\nsrc/sqr_repro/toy.py\nsrc/sqr_repro/toy_eval.py\nsrc/sqr_repro/trainer.py\ntests/fixtures/audit_math_tiny.yaml\ntests/fixtures/debug_cpu.yaml\ntests/fixtures/reimpl_w24.yaml\ntests/test_audio.py\ntests/test_checkpoint_roundtrip.py\ntests/test_common_consistency_loss.py\ntests/test_condition_embedding.py\ntests/test_config.py\ntests/test_controller_shapes_and_bn.py\ntests/test_data.py\ntests/test_gpocm_formula.py\ntests/test_gradient_flow.py\n",
+      "error": ""
+    },
+    "changed": {
+      "return_code": 0,
+      "output": "0\t0\tconfigs/PureSwap_E1cosine-B_1000ep.yaml\n0\t0\tconfigs/PureSwap_E4_1000ep.yaml\n0\t0\tconfigs/author_release_12ep_warmup_cosine.yaml\n0\t0\tpyproject.toml\n0\t0\tresults/checkpoint_evals/E1cosineB_test_ep274.json\n0\t0\tresults/test_results/PureSwap_E4_1000ep_pinv_test_results.json\n0\t0\tresults/test_results/author_release_12ep_warmup_cosine_test_results.json\n0\t0\tscripts/train_PureNoise_E2_300ep.py\n0\t0\tscripts/train_PureSwap_E1cosine-B_1000ep.py\n0\t0\tscripts/train_PureSwap_E1cosine-P50_1000ep.py\n0\t0\tscripts/train_PureSwap_E4_1000ep.py\n0\t0\tscripts/train_author_release_12ep_warmup_cosine.py\n0\t0\tsrc/sqr_repro/__init__.py\n0\t0\tsrc/sqr_repro/__main__.py\n0\t0\tsrc/sqr_repro/audio.py\n0\t0\tsrc/sqr_repro/bn_counterfactual.py\n0\t0\tsrc/sqr_repro/checkpoint.py\n0\t0\tsrc/sqr_repro/common_loss_ablation.py\n0\t0\tsrc/sqr_repro/config.py\n0\t0\tsrc/sqr_repro/coverage.py\n0\t0\tsrc/sqr_repro/data.py\n0\t0\tsrc/sqr_repro/fixtures.py\n0\t0\tsrc/sqr_repro/linear_pan.py\n0\t0\tsrc/sqr_repro/losses.py\n0\t0\tsrc/sqr_repro/models/__init__.py\n0\t0\tsrc/sqr_repro/models/blocks.py\n0\t0\tsrc/sqr_repro/models/conditioning.py\n0\t0\tsrc/sqr_repro/models/score_encoder.py\n0\t0\tsrc/sqr_repro/models/separator.py\n0\t0\tsrc/sqr_repro/paired.py\n0\t0\tsrc/sqr_repro/paper_c0/__init__.py\n0\t0\tsrc/sqr_repro/paper_c0/dataset.py\n0\t0\tsrc/sqr_repro/paper_c0/evaluator.py\n0\t0\tsrc/sqr_repro/paper_c0/metrics.py\n0\t0\tsrc/sqr_repro/paper_c0/model_factory.py\n0\t0\tsrc/sqr_repro/paper_c0/portable.py\n0\t0\tsrc/sqr_repro/paper_c0/real_pilot.py\n0\t0\tsrc/sqr_repro/paper_c0/target_smoke.py\n0\t0\tsrc/sqr_repro/paper_c0/trainer.py\n0\t0\tsrc/sqr_repro/paper_c0/waveform.py\n0\t0\tsrc/sqr_repro/paper_c0_contract.py\n0\t0\tsrc/sqr_repro/profiling.py\n0\t0\tsrc/sqr_repro/projection_eval.py\n0\t0\tsrc/sqr_repro/resume.py\n0\t0\tsrc/sqr_repro/scene_diagnostic.py\n0\t0\tsrc/sqr_repro/score.py\n0\t0\tsrc/sqr_repro/score_coverage.py\n0\t0\tsrc/sqr_repro/score_coverage_runner.py\n0\t0\tsrc/sqr_repro/score_route.py\n0\t0\tsrc/sqr_repro/score_toy.py\n0\t0\tsrc/sqr_repro/toy.py\n0\t0\tsrc/sqr_repro/toy_eval.py\n0\t0\tsrc/sqr_repro/trainer.py\n0\t0\ttests/fixtures/audit_math_tiny.yaml\n0\t0\ttests/fixtures/debug_cpu.yaml\n0\t0\ttests/fixtures/reimpl_w24.yaml\n0\t0\ttests/test_audio.py\n0\t0\ttests/test_checkpoint_roundtrip.py\n0\t0\ttests/test_common_consistency_loss.py\n0\t0\ttests/test_condition_embedding.py\n0\t0\ttests/test_config.py\n0\t0\ttests/test_controller_shapes_and_bn.py\n0\t0\ttests/test_data.py\n0\t0\ttests/test_gpocm_formula.py\n0\t0\ttests/test_gradient_flow.py\n",
+      "error": "warning: in the working copy of 'configs/PureSwap_E1cosine-B_1000ep.yaml', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'configs/PureSwap_E4_1000ep.yaml', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'configs/author_release_12ep_warmup_cosine.yaml', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'pyproject.toml', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'results/checkpoint_evals/E1cosineB_test_ep274.json', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'results/test_results/PureSwap_E4_1000ep_pinv_test_results.json', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'results/test_results/author_release_12ep_warmup_cosine_test_results.json', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'scripts/train_PureNoise_E2_300ep.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'scripts/train_PureSwap_E1cosine-B_1000ep.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'scripts/train_PureSwap_E1cosine-P50_1000ep.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'scripts/train_PureSwap_E4_1000ep.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'scripts/train_author_release_12ep_warmup_cosine.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/__init__.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/__main__.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/audio.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/bn_counterfactual.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/checkpoint.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/common_loss_ablation.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/config.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/coverage.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/data.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/fixtures.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/linear_pan.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/losses.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/models/__init__.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/models/blocks.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/models/conditioning.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/models/score_encoder.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/models/separator.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/paired.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/paper_c0/__init__.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/paper_c0/dataset.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/paper_c0/evaluator.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/paper_c0/metrics.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/paper_c0/model_factory.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/paper_c0/portable.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/paper_c0/real_pilot.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/paper_c0/target_smoke.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/paper_c0/trainer.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/paper_c0/waveform.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/paper_c0_contract.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/profiling.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/projection_eval.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/resume.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/scene_diagnostic.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/score.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/score_coverage.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/score_coverage_runner.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/score_route.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/score_toy.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/toy.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/toy_eval.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/sqr_repro/trainer.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'tests/fixtures/audit_math_tiny.yaml', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'tests/fixtures/debug_cpu.yaml', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'tests/fixtures/reimpl_w24.yaml', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'tests/test_audio.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'tests/test_checkpoint_roundtrip.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'tests/test_common_consistency_loss.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'tests/test_condition_embedding.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'tests/test_config.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'tests/test_controller_shapes_and_bn.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'tests/test_data.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'tests/test_gpocm_formula.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'tests/test_gradient_flow.py', LF will be replaced by CRLF the next time Git touches it\n"
+    },
+    "commit_files": {
+      "return_code": 0,
+      "output": ".github/ISSUE_TEMPLATE/bug_report.yml\n.github/ISSUE_TEMPLATE/reproduction_request.yml\n.github/workflows/ci.yml\n.gitignore\nCHANGELOG.md\nCITATION.cff\nCONTRIBUTING.md\nLICENSE\nREADME.md\nREPRODUCIBILITY.md\nconfigs/PureDrop_E3_300ep_p025.yaml\nconfigs/PureNoise_E2_300ep_s010.yaml\nconfigs/PureSwap_E1cosine-B_1000ep.yaml\nconfigs/PureSwap_E1cosine-P10_1000ep.yaml\nconfigs/PureSwap_E1cosine-P15_1000ep.yaml\nconfigs/PureSwap_E1cosine-P50_1000ep.yaml\nconfigs/PureSwap_E4_1000ep.yaml\nconfigs/author_release_12ep_warmup_cosine.yaml\ndocs/AUDIT_REPORT.md\ndocs/E1-4_DESIGN.md\ndocs/EXPERIMENT_REPORT.md\nmanifests/sqr_paper_split_test.jsonl\nmanifests/sqr_paper_split_train.jsonl\nmanifests/sqr_paper_split_val.jsonl\npyproject.toml\nresults/checkpoint_evals/E1cosineB_test_ep274.json\nresults/checkpoint_evals/E2_test_ep274.json\nresults/checkpoint_evals/E3_test_ep274.json\nresults/checkpoint_evals/E4_test_ep424.json\nresults/checkpoint_evals/P10_test_ep424.json\nresults/checkpoint_evals/P15_test_ep424.json\nresults/checkpoint_evals/P50_test_ep424.json\nresults/test_results/PureDrop_E3_300ep_p025_test_results.json\nresults/test_results/PureNoise_E2_300ep_s010_test_results.json\nresults/test_results/PureSwap_E4_1000ep_pinv_test_results.json\nresults/test_results/author_release_12ep_warmup_cosine_test_results.json\nscripts/build_data_split_manifests.py\nscripts/evaluate_checkpoint.py\nscripts/train_PureDrop_E3_300ep.py\nscripts/train_PureNoise_E2_300ep.py\nscripts/train_PureSwap_E1cosine-B_1000ep.py\nscripts/train_PureSwap_E1cosine-P10_1000ep.py\nscripts/train_PureSwap_E1cosine-P15_1000ep.py\nscripts/train_PureSwap_E1cosine-P50_1000ep.py\nscripts/train_PureSwap_E4_1000ep.py\nscripts/train_author_release_12ep_warmup_cosine.py\nsrc/sqr_repro/__init__.py\nsrc/sqr_repro/__main__.py\nsrc/sqr_repro/audio.py\nsrc/sqr_repro/bn_counterfactual.py\nsrc/sqr_repro/checkpoint.py\nsrc/sqr_repro/common_loss_ablation.py\nsrc/sqr_repro/config.py\nsrc/sqr_repro/coverage.py\nsrc/sqr_repro/data.py\nsrc/sqr_repro/fixtures.py\nsrc/sqr_repro/linear_pan.py\nsrc/sqr_repro/losses.py\nsrc/sqr_repro/models/__init__.py\nsrc/sqr_repro/models/blocks.py\nsrc/sqr_repro/models/conditioning.py\nsrc/sqr_repro/models/score_encoder.py\nsrc/sqr_repro/models/separator.py\nsrc/sqr_repro/paired.py\nsrc/sqr_repro/paper_c0/__init__.py\nsrc/sqr_repro/paper_c0/dataset.py\nsrc/sqr_repro/paper_c0/evaluator.py\nsrc/sqr_repro/paper_c0/metrics.py\nsrc/sqr_repro/paper_c0/model_factory.py\nsrc/sqr_repro/paper_c0/portable.py\nsrc/sqr_repro/paper_c0/real_pilot.py\nsrc/sqr_repro/paper_c0/target_smoke.py\nsrc/sqr_repro/paper_c0/trainer.py\nsrc/sqr_repro/paper_c0/waveform.py\nsrc/sqr_repro/paper_c0_contract.py\nsrc/sqr_repro/profiling.py\nsrc/sqr_repro/projection_eval.py\nsrc/sqr_repro/resume.py\nsrc/sqr_repro/scene_diagnostic.py\nsrc/sqr_repro/score.py\nsrc/sqr_repro/score_coverage.py\nsrc/sqr_repro/score_coverage_runner.py\nsrc/sqr_repro/score_route.py\nsrc/sqr_repro/score_toy.py\nsrc/sqr_repro/toy.py\nsrc/sqr_repro/toy_eval.py\nsrc/sqr_repro/trainer.py\ntests/fixtures/audit_math_tiny.yaml\ntests/fixtures/debug_cpu.yaml\ntests/fixtures/reimpl_w24.yaml\ntests/test_audio.py\ntests/test_checkpoint_roundtrip.py\ntests/test_common_consistency_loss.py\ntests/test_condition_embedding.py\ntests/test_config.py\ntests/test_controller_shapes_and_bn.py\ntests/test_data.py\ntests/test_gpocm_formula.py\ntests/test_gradient_flow.py\n",
+      "error": ""
+    }
+  }
+}

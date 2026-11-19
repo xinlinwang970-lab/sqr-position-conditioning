@@ -1,0 +1,240 @@
+{
+  "status": "SAVED_RESULTS_VERIFIED",
+  "result_files": 11,
+  "queries": 528,
+  "evidence_hashes_checked": 81,
+  "scores": {
+    "results/checkpoint_evals/E1cosineB_test_ep274.json": {
+      "mean_sdr": 1.6187000633217394,
+      "median_sdr": 1.4363252520561218,
+      "type1_median": 1.3917697668075562,
+      "type2_median": 1.4778105020523071,
+      "by_part_median": {
+        "violin1": 1.7026586532592773,
+        "violin2": 0.857860267162323,
+        "viola": 0.26207731664180756,
+        "cello": 3.098098397254944
+      },
+      "n": 48,
+      "composition_ids": [
+        "24-Pirates",
+        "26-King",
+        "32-Fugue",
+        "36-Rondeau",
+        "38-Jerusalem",
+        "44-K515"
+      ]
+    },
+    "results/checkpoint_evals/E2_test_ep274.json": {
+      "mean_sdr": 1.025635220343247,
+      "median_sdr": 0.8141699433326721,
+      "type1_median": 0.03378530405461788,
+      "type2_median": 1.4813557863235474,
+      "by_part_median": {
+        "violin1": 1.8521611094474792,
+        "violin2": -1.4879753589630127,
+        "viola": 0.7281505167484283,
+        "cello": 1.9834176003932953
+      },
+      "n": 48,
+      "composition_ids": [
+        "24-Pirates",
+        "26-King",
+        "32-Fugue",
+        "36-Rondeau",
+        "38-Jerusalem",
+        "44-K515"
+      ]
+    },
+    "results/checkpoint_evals/E3_test_ep274.json": {
+      "mean_sdr": 1.4086406012065709,
+      "median_sdr": 1.178147792816162,
+      "type1_median": 0.6771170198917389,
+      "type2_median": 1.6310055255889893,
+      "by_part_median": {
+        "violin1": 1.8385686874389648,
+        "violin2": 0.7369219064712524,
+        "viola": 0.7284848988056183,
+        "cello": 1.872435785830021
+      },
+      "n": 48,
+      "composition_ids": [
+        "24-Pirates",
+        "26-King",
+        "32-Fugue",
+        "36-Rondeau",
+        "38-Jerusalem",
+        "44-K515"
+      ]
+    },
+    "results/checkpoint_evals/E4_test_ep424.json": {
+      "mean_sdr": 2.3167435807796815,
+      "median_sdr": 2.1928662061691284,
+      "type1_median": 2.0913267731666565,
+      "type2_median": 2.1928662061691284,
+      "by_part_median": {
+        "violin1": 2.4972981214523315,
+        "violin2": 0.5221827328205109,
+        "viola": 1.3086913228034973,
+        "cello": 4.411586761474609
+      },
+      "n": 48,
+      "composition_ids": [
+        "24-Pirates",
+        "26-King",
+        "32-Fugue",
+        "36-Rondeau",
+        "38-Jerusalem",
+        "44-K515"
+      ]
+    },
+    "results/checkpoint_evals/P10_test_ep424.json": {
+      "mean_sdr": 2.2076682498833784,
+      "median_sdr": 2.0085562467575073,
+      "type1_median": 1.748030424118042,
+      "type2_median": 2.118944525718689,
+      "by_part_median": {
+        "violin1": 2.505093812942505,
+        "violin2": 0.4156320318579674,
+        "viola": 0.8112989962100983,
+        "cello": 4.60324501991272
+      },
+      "n": 48,
+      "composition_ids": [
+        "24-Pirates",
+        "26-King",
+        "32-Fugue",
+        "36-Rondeau",
+        "38-Jerusalem",
+        "44-K515"
+      ]
+    },
+    "results/checkpoint_evals/P15_test_ep424.json": {
+      "mean_sdr": 2.514977579625944,
+      "median_sdr": 2.300746202468872,
+      "type1_median": 2.2651290893554688,
+      "type2_median": 2.300746202468872,
+      "by_part_median": {
+        "violin1": 2.639378070831299,
+        "violin2": 0.9484245181083679,
+        "viola": 0.8278176188468933,
+        "cello": 5.493811130523682
+      },
+      "n": 48,
+      "composition_ids": [
+        "24-Pirates",
+        "26-King",
+        "32-Fugue",
+        "36-Rondeau",
+        "38-Jerusalem",
+        "44-K515"
+      ]
+    },
+    "results/checkpoint_evals/P50_test_ep424.json": {
+      "mean_sdr": 2.2611701086473963,
+      "median_sdr": 1.9238487482070923,
+      "type1_median": 1.9959839582443237,
+      "type2_median": 1.9131900072097778,
+      "by_part_median": {
+        "violin1": 2.1649348735809326,
+        "violin2": 0.8369399607181549,
+        "viola": 1.0344350039958954,
+        "cello": 4.673257350921631
+      },
+      "n": 48,
+      "composition_ids": [
+        "24-Pirates",
+        "26-King",
+        "32-Fugue",
+        "36-Rondeau",
+        "38-Jerusalem",
+        "44-K515"
+      ]
+    },
+    "results/test_results/author_release_12ep_warmup_cosine_test_results.json": {
+      "mean_sdr": 1.3268023040145636,
+      "median_sdr": 1.160451352596283,
+      "type1_median": -0.3298855274915695,
+      "type2_median": 1.636062741279602,
+      "by_part_median": {
+        "violin1": 2.3364733457565308,
+        "violin2": -0.8088349103927612,
+        "viola": 0.9450010061264038,
+        "cello": 2.2386909127235413
+      },
+      "n": 48,
+      "composition_ids": [
+        "24-Pirates",
+        "26-King",
+        "32-Fugue",
+        "36-Rondeau",
+        "38-Jerusalem",
+        "44-K515"
+      ]
+    },
+    "results/test_results/PureDrop_E3_300ep_p025_test_results.json": {
+      "mean_sdr": 1.0147463173295062,
+      "median_sdr": 0.7821409106254578,
+      "type1_median": 0.3420616537332535,
+      "type2_median": 1.686057448387146,
+      "by_part_median": {
+        "violin1": 1.7782493233680725,
+        "violin2": -0.4627450257539749,
+        "viola": 0.8591057360172272,
+        "cello": 1.5417693555355072
+      },
+      "n": 48,
+      "composition_ids": [
+        "24-Pirates",
+        "26-King",
+        "32-Fugue",
+        "36-Rondeau",
+        "38-Jerusalem",
+        "44-K515"
+      ]
+    },
+    "results/test_results/PureNoise_E2_300ep_s010_test_results.json": {
+      "mean_sdr": 0.7939540374403199,
+      "median_sdr": 0.6723325252532959,
+      "type1_median": 0.4286874234676361,
+      "type2_median": 1.236596167087555,
+      "by_part_median": {
+        "violin1": 1.3764026761054993,
+        "violin2": -1.5795539021492004,
+        "viola": 0.4717322438955307,
+        "cello": 1.3340207636356354
+      },
+      "n": 48,
+      "composition_ids": [
+        "24-Pirates",
+        "26-King",
+        "32-Fugue",
+        "36-Rondeau",
+        "38-Jerusalem",
+        "44-K515"
+      ]
+    },
+    "results/test_results/PureSwap_E4_1000ep_pinv_test_results.json": {
+      "mean_sdr": 2.2399841537699103,
+      "median_sdr": 1.9299811720848083,
+      "type1_median": 1.8089421391487122,
+      "type2_median": 2.1323882341384888,
+      "by_part_median": {
+        "violin1": 2.5509541034698486,
+        "violin2": 0.4572134166955948,
+        "viola": 1.1691757440567017,
+        "cello": 4.275984525680542
+      },
+      "n": 48,
+      "composition_ids": [
+        "24-Pirates",
+        "26-King",
+        "32-Fugue",
+        "36-Rondeau",
+        "38-Jerusalem",
+        "44-K515"
+      ]
+    }
+  },
+  "scope": "Arithmetic and preserved file bytes; no fresh checkpoint/audio inference"
+}

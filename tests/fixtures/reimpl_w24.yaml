@@ -1,0 +1,86 @@
+schema_version: 1
+experiment:
+  name: reimpl_w24_tp
+  status: independent_reimplementation
+  seed: 2026
+  test_only: false
+paths:
+  run_root: runs
+data:
+  root: null
+  manifest: null
+  target_sampling: balanced_pairs
+  pair_cycle:
+    - [violin1, viola]
+    - [violin2, cello]
+    - [violin1, cello]
+    - [violin2, viola]
+  augmentation: none
+  num_workers: 0
+  pin_memory: true
+  drop_last: true
+audio:
+  sample_rate: 44100
+  channels: 2
+  n_fft: 2048
+  win_length: 2048
+  hop_length: 1024
+  num_frames: 128
+  center: true
+  pad_mode: reflect
+  window: hann
+  window_periodic: true
+  normalized: false
+  pack_order: [real_left, real_right, imag_left, imag_right]
+  stft_dtype: float32
+model:
+  n_blocks: 7
+  internal_channels: 24
+  tfc_layers: 5
+  kernel_size: [3, 3]
+  tdf_bottleneck_factor: 16
+  tdf_min_units: 16
+  tdf_bias: false
+  condition_route: split_stage
+  embedding_dim: 32
+  control_hidden_dims: [64, 128, 256]
+  control_dropout: 0.5
+  control_hidden_norm: batch_norm
+  control_output_norm: batch_norm_no_affine
+  modulation: gpocm
+  modulation_position: after_tfc_before_tdf
+  output_mode: complex_mapping
+  activation_checkpointing: false
+training:
+  batch_size: 2
+  gradient_accumulation_steps: 4
+  precision: amp_float16
+  loss: packed_complex_mse
+  optimizer: adam
+  learning_rate: 0.0005
+  adam_betas: [0.9, 0.999]
+  adam_eps: 1.0e-8
+  weight_decay: 0.0
+  foreach: false
+  gradient_clip_norm: null
+  scheduler: none
+  max_attempted_updates: 3000
+  validate_every_updates: 500
+  checkpoint_every_updates: 500
+  monitor: val_complex_mse
+  monitor_mode: min
+  compile: false
+inference:
+  batch_size: 1
+  overlap_ratio_requested: 0.5
+  align_stride_to_stft_hop: true
+  blend_window: hann_positive_floor
+  blend_weight_floor: 1.0e-4
+  keep_original_length: true
+  save_subtype: FLOAT
+profiling:
+  warmup_updates: 10
+  measured_updates: 100
+  reserved_memory_budget_gib: 6.5
+  budget_is_advisory: true
+

@@ -1,0 +1,267 @@
+[
+  {
+    "id": "baseline",
+    "path": "runs/author_release_12ep_warmup_cosine/checkpoint_052236.pt",
+    "exists": true,
+    "bytes": 557930963,
+    "top_level_keys": [
+      "format_version",
+      "model_state_dict",
+      "optimizer_state_dict",
+      "config",
+      "completed_updates",
+      "sampler_state",
+      "epoch"
+    ],
+    "completed_updates": 52236,
+    "epoch": 11,
+    "model": {
+      "condition_route": "split_stage_paper",
+      "control_dropout": 0.1,
+      "activation_checkpointing": false,
+      "base_channels": 124
+    },
+    "training": {
+      "scheduler": "warmup_cosine",
+      "learning_rate": 0.0005,
+      "max_attempted_updates": 52236,
+      "batch_size": 4
+    },
+    "checkpoint_config_root": "/mnt/sda/MSS/data",
+    "checkpoint_manifest": "/mnt/sda/MSS/data/cache_dense_author_release/cache_index.json",
+    "contains_rng_state": false,
+    "parameter_tensors": 382,
+    "sha256": "7b64b4930cdde7c518987fe06ed0d2358e1c75440a709db4c7a9497ae8c983ed"
+  },
+  {
+    "id": "E1_B",
+    "path": "runs/PureSwap_E1cosine-B_1000ep_p025/checkpoint_016225.pt",
+    "exists": true,
+    "bytes": 365623867,
+    "top_level_keys": [
+      "format_version",
+      "model_state_dict",
+      "optimizer_state_dict",
+      "config",
+      "completed_updates",
+      "epoch"
+    ],
+    "completed_updates": 16225,
+    "epoch": 274,
+    "model": {
+      "condition_route": "mid_dual_paper",
+      "control_dropout": 0.1,
+      "activation_checkpointing": false,
+      "base_channels": 124
+    },
+    "training": {
+      "scheduler": "warmup_cosine",
+      "learning_rate": 0.0005,
+      "max_attempted_updates": 59000,
+      "batch_size": 4
+    },
+    "checkpoint_config_root": "/mnt/sda/MSS/quartet-data/train",
+    "checkpoint_manifest": "/mnt/sda/MSS/quartet-data/train_manifest.jsonl",
+    "contains_rng_state": false,
+    "parameter_tensors": 354,
+    "sha256": "45e9d9bb83fef121aa673ef3188a7594b5dd378dfcc13622c74e24b8d6454318"
+  },
+  {
+    "id": "E2",
+    "path": "runs/PureNoise_E2_300ep_s010/checkpoint_016225.pt",
+    "exists": true,
+    "bytes": 365622933,
+    "top_level_keys": [
+      "format_version",
+      "model_state_dict",
+      "optimizer_state_dict",
+      "config",
+      "completed_updates",
+      "epoch"
+    ],
+    "completed_updates": 16225,
+    "epoch": 274,
+    "model": {
+      "condition_route": "mid_dual_paper",
+      "control_dropout": 0.1,
+      "activation_checkpointing": false,
+      "base_channels": 124
+    },
+    "training": {
+      "scheduler": "constant_lr",
+      "learning_rate": 0.0005,
+      "max_attempted_updates": 17700,
+      "batch_size": 4
+    },
+    "checkpoint_config_root": "/ceph/wanghui/MSS/data",
+    "checkpoint_manifest": "/ceph/wanghui/MSS/data/manifests/sqr_paper_split_train.jsonl",
+    "contains_rng_state": false,
+    "parameter_tensors": 354,
+    "sha256": "3bca2692e97a9f78f25259425723575e24c8ecc4eb22c14cdfdb3bcfc5748ba4"
+  },
+  {
+    "id": "E3",
+    "path": "runs/PureDrop_E3_300ep_p025/checkpoint_016225.pt",
+    "exists": true,
+    "bytes": 365622933,
+    "top_level_keys": [
+      "format_version",
+      "model_state_dict",
+      "optimizer_state_dict",
+      "config",
+      "completed_updates",
+      "epoch"
+    ],
+    "completed_updates": 16225,
+    "epoch": 274,
+    "model": {
+      "condition_route": "mid_dual_paper",
+      "control_dropout": 0.1,
+      "activation_checkpointing": false,
+      "base_channels": 124
+    },
+    "training": {
+      "scheduler": "constant_lr",
+      "learning_rate": 0.0005,
+      "max_attempted_updates": 17700,
+      "batch_size": 4
+    },
+    "checkpoint_config_root": "/ceph/wanghui/MSS/data",
+    "checkpoint_manifest": "/ceph/wanghui/MSS/data/manifests/sqr_paper_split_train.jsonl",
+    "contains_rng_state": false,
+    "parameter_tensors": 354,
+    "sha256": "afbea992532fb4fde212627c6b486a90a49fdd6c0c6d207c1c7504b2123cd858"
+  },
+  {
+    "id": "P10",
+    "path": "runs/PureSwap_E1cosine-P10_1000ep_p010/checkpoint_025075.pt",
+    "exists": true,
+    "bytes": 365622997,
+    "top_level_keys": [
+      "format_version",
+      "model_state_dict",
+      "optimizer_state_dict",
+      "config",
+      "completed_updates",
+      "epoch"
+    ],
+    "completed_updates": 25075,
+    "epoch": 424,
+    "model": {
+      "condition_route": "mid_dual_paper",
+      "control_dropout": 0.1,
+      "activation_checkpointing": false,
+      "base_channels": 124
+    },
+    "training": {
+      "scheduler": "warmup_cosine",
+      "learning_rate": 0.0005,
+      "max_attempted_updates": 59000,
+      "batch_size": 4
+    },
+    "checkpoint_config_root": "/ceph/wanghui/MSS/data",
+    "checkpoint_manifest": "/ceph/wanghui/MSS/data/manifests/sqr_paper_split_train.jsonl",
+    "contains_rng_state": false,
+    "parameter_tensors": 354,
+    "sha256": "fff40be6ad3f1a9ce2fa53730bb7fd6dc448b5807fac90f17b311c2b79e96502"
+  },
+  {
+    "id": "P15",
+    "path": "runs/PureSwap_E1cosine-P15_1000ep_p015/checkpoint_025075.pt",
+    "exists": true,
+    "bytes": 365622997,
+    "top_level_keys": [
+      "format_version",
+      "model_state_dict",
+      "optimizer_state_dict",
+      "config",
+      "completed_updates",
+      "epoch"
+    ],
+    "completed_updates": 25075,
+    "epoch": 424,
+    "model": {
+      "condition_route": "mid_dual_paper",
+      "control_dropout": 0.1,
+      "activation_checkpointing": false,
+      "base_channels": 124
+    },
+    "training": {
+      "scheduler": "warmup_cosine",
+      "learning_rate": 0.0005,
+      "max_attempted_updates": 59000,
+      "batch_size": 4
+    },
+    "checkpoint_config_root": "/ceph/wanghui/MSS/data",
+    "checkpoint_manifest": "/ceph/wanghui/MSS/data/manifests/sqr_paper_split_train.jsonl",
+    "contains_rng_state": false,
+    "parameter_tensors": 354,
+    "sha256": "b6ddea3faeb6fba4f0f7f6f28bd929e059f6bed6b86ebac7ba1021b89bacdf18"
+  },
+  {
+    "id": "P50",
+    "path": "runs/PureSwap_E1cosine-P50_1000ep_p050/checkpoint_025075.pt",
+    "exists": true,
+    "bytes": 365622997,
+    "top_level_keys": [
+      "format_version",
+      "model_state_dict",
+      "optimizer_state_dict",
+      "config",
+      "completed_updates",
+      "epoch"
+    ],
+    "completed_updates": 25075,
+    "epoch": 424,
+    "model": {
+      "condition_route": "mid_dual_paper",
+      "control_dropout": 0.1,
+      "activation_checkpointing": false,
+      "base_channels": 124
+    },
+    "training": {
+      "scheduler": "warmup_cosine",
+      "learning_rate": 0.0005,
+      "max_attempted_updates": 59000,
+      "batch_size": 4
+    },
+    "checkpoint_config_root": "/ceph/wanghui/MSS/data",
+    "checkpoint_manifest": "/ceph/wanghui/MSS/data/manifests/sqr_paper_split_train.jsonl",
+    "contains_rng_state": false,
+    "parameter_tensors": 354,
+    "sha256": "f58b693eaceb7c53d2f7df01ce221b9368a703e77f2fa827a15e0c1feb45f8f3"
+  },
+  {
+    "id": "E4",
+    "path": "runs/PureSwap_E4_1000ep_pinv/checkpoint_025075.pt",
+    "exists": true,
+    "bytes": 365623867,
+    "top_level_keys": [
+      "format_version",
+      "model_state_dict",
+      "optimizer_state_dict",
+      "config",
+      "completed_updates",
+      "epoch"
+    ],
+    "completed_updates": 25075,
+    "epoch": 424,
+    "model": {
+      "condition_route": "mid_dual_paper",
+      "control_dropout": 0.1,
+      "activation_checkpointing": false,
+      "base_channels": 124
+    },
+    "training": {
+      "scheduler": "warmup_cosine",
+      "learning_rate": 0.0005,
+      "max_attempted_updates": 59000,
+      "batch_size": 4
+    },
+    "checkpoint_config_root": "/mnt/sda/MSS/data",
+    "checkpoint_manifest": "/mnt/sda/MSS/data/manifests/sqr_paper_split_train.jsonl",
+    "contains_rng_state": false,
+    "parameter_tensors": 354,
+    "sha256": "9068ab7a685a3ae613e5a0836b543ad19fb30528b6da68cbec1c70d1c5e57833"
+  }
+]

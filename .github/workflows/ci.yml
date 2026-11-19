@@ -36,3 +36,6 @@ jobs:
 
       - name: Verify saved result arithmetic and evidence hashes
         run: python scripts/verify_results.py
+
+      - name: Verify paired layout summaries
+        run: python scripts/summarize_layout_pairs.py --check

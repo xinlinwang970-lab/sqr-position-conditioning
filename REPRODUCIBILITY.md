@@ -5,6 +5,7 @@ This release supports verification at several distinct levels.
 | Level | Evidence and scope | Status at release preparation |
 |---|---|---|
 | Saved-score arithmetic | `python scripts/verify_results.py`; 11 original result JSONs, 528 query rows, complete six-recording grids | Verified locally |
+| Paired layout descriptions | `python scripts/summarize_layout_pairs.py --check`; five saved-score runs, 24 source-part pairs per run, input hashes and derived statistics | Deterministically recomputable; post-hoc descriptive analysis |
 | Preserved evidence bytes | SHA-256 for imported logs/configs/selections and original result files | Verified locally |
 | Model/data/tool behavior | CPU pytest suite, real WAV fixtures, forward/backward, routing and cache checks | See `results/validation/` for exact run |
 | Checkpoint identity | Eight original files were hashed and safely loaded during the local audit; metadata is bundled | Local inspection only; weights excluded |
@@ -44,3 +45,11 @@ Files ending in `ep274` and `ep424` use zero-based epoch labels: they correspond
 The URMP release was evaluated repeatedly during development. Available intermediate evaluations are bundled rather than hidden. These are development observations, not an untouched final test. Future hyperparameter/checkpoint selection must use validation data, with independent new test material for a confirmatory study. Four parts and two layouts from the same recording are correlated; 48 scores are not 48 independent works.
 
 No numerical tolerance such as "within 0.05 dB" is promised for a new training run. No cross-work or synthetic-to-real population conclusion follows from this release alone.
+
+## Paired saved-score summaries
+
+`results/layout_pair_summary.json` is derived from five existing result files; the original files remain unchanged. Recompute it with `python scripts/summarize_layout_pairs.py`, write a separate file with `--output`, or check the committed version without writing with `--check`. The CLI uses repository-relative default paths, including when called from another working directory.
+
+Pairs identify the same source recording and target part across type1/type2. For this frozen selection, `composition_id` identifies the source recording; the legacy baseline adapter removes the first layout prefix from `item_id`. All runs must contain the same six sources and four parts, with exactly one score per layout and pair.
+
+The signed pooled-median difference, median paired difference, median absolute paired difference, mean absolute paired difference and mean signed paired difference are separate quantities. Every difference uses unrounded scores. The JSON also records per-part summaries over six pairs and the complete pair list. No confidence intervals or significance tests are computed. The 24 pairs are clustered within six source recordings, reused across methods. See the [paired analysis](docs/EXPERIMENT_REPORT.md#paired-layout-analysis) for definitions and attribution limits.

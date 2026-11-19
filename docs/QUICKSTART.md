@@ -16,6 +16,19 @@ For GPU use, first install a PyTorch build compatible with your platform. The ex
 
 Result verification checks saved per-query scores, summary calculations, and evidence-file checksums. It does not run inference. Audio, SoundFonts, third-party dataset archives, and model weights are not bundled. The separate MuseScore workflow produces a different dataset variant and is not the source of the historical SQR scores.
 
+## Recompute paired layout statistics
+
+```bash
+python scripts/summarize_layout_pairs.py --check
+python scripts/summarize_layout_pairs.py --output runs/layout_pair_summary.json
+```
+
+The first command recomputes and checks the committed `results/layout_pair_summary.json` without writing. The second writes a separate derived file. Without options, the script regenerates the committed summary at its default path. Raw result and provenance directories are protected from output overwrites.
+
+For Baseline, P10, P15, P50, and E4, the tool reuses the existing result adapter, checks a complete 6-source x 4-part x 2-layout grid, and requires identical source cohorts across runs. It records input SHA-256 hashes, 24 source-part pairs per run, signed/absolute differences, overall statistics and six-pair part-level summaries. Duplicate queries, missing layouts, non-finite scores and inconsistent identities fail explicitly.
+
+This is post-hoc descriptive analysis of saved scores. It does not load weights or audio, run inference, or provide independent new test evidence. Definitions and interpretation are in the [paired layout analysis](EXPERIMENT_REPORT.md#paired-layout-analysis).
+
 ## Rebuild manifests from the SQR archives
 
 Obtain both archives from [SQR on Zenodo](https://zenodo.org/records/14793971) and extract them beneath one data root. You can retain the original directory structure; validation audio does not need to be moved into a separate directory.

@@ -78,11 +78,13 @@ There is no composition overlap between these splits. The project follows the ch
 
 This project evaluates the reconstructed full-length waveform with the following scale-dependent energy ratio:
 
-$$
+```math
 \operatorname{WaveSDR}(x, \hat{x})
-=10\log_{10}\frac{\sum_n x_n^2}
-{\sum_n(\hat{x}_n-x_n)^2+10^{-8}},
-$$
+=10\log_{10}\left(
+\frac{\sum_n x_n^2}
+{\sum_n(\hat{x}_n-x_n)^2+10^{-8}}
+\right).
+```
 
 where $x$ is the reference waveform and $\hat{x}$ is the estimated waveform. Higher is better.
 
@@ -184,11 +186,14 @@ MDP is **not** the paper's §4.2 preferred route.
 
 For feature map $D^i$ at stage $i$, the implemented gate follows the published form:
 
-$$
-\operatorname{PoCM}(D^i_c)=\sum_j\omega^i_{cj}D^i_j+\beta^i_c,
-\qquad
-\operatorname{GPoCM}(D^i_c)=\sigma(\operatorname{PoCM}(D^i_c))\odot D^i_c.
-$$
+```math
+\begin{aligned}
+\operatorname{PoCM}(D^i_c)
+&=\sum_j \omega^i_{cj}D^i_j+\beta^i_c, \\
+\operatorname{GPoCM}(D^i_c)
+&=\sigma\!\left(\operatorname{PoCM}(D^i_c)\right)\odot D^i_c.
+\end{aligned}
+```
 
 The repository applies GPoCM after TFC and before TDF, then returns `h + TDF(h)`. The g24 family concatenates the dense input and all five growth-24 outputs and projects them to the stage width with `1×1` convolution. This projection is an explicit reconstruction hypothesis, not a detail claimed to be present in the authors' model.
 

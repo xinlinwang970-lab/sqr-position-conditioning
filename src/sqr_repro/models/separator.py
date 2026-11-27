@@ -3,8 +3,13 @@ from __future__ import annotations
 import torch
 import torch.nn as nn
 
-from ..config import input_frequency_bins
-from .blocks import ControlledTfcTdfBlock, Downsample, Upsample
+from ..config import GROWTH24_PROJECTED_ARCHITECTURES, input_frequency_bins
+from .blocks import (
+    ControlledTfcTdfBlock,
+    Downsample,
+    Growth24ProjectedControlledTfcTdfBlock,
+    Upsample,
+)
 from .conditioning import ConditionEmbeddings, ConditionParameterGenerator
 from .score_encoder import ScoreEncoder
 
@@ -15,9 +20,36 @@ class Separator(nn.Module):
         audio = config["audio"]
         model = config["model"]
         self.config = config
-        self.channels = int(model["base_channels"])
+        self.architecture_version = str(model.get("architecture_version", "legacy_uniform_v1"))
+        projected_spec = GROWTH24_PROJECTED_ARCHITECTURES.get(self.architecture_version)
+        self.projected_growth24 = projected_spec is not None
+        self.stage_channels = tuple(
+            int(value)
+            for value in model.get("stage_channels", [int(model["base_channels"])] * 4)
+        )
+        if len(self.stage_channels) != 4 or any(value <= 0 for value in self.stage_channels):
+            raise ValueError("stage_channels must contain four positive U-Net widths")
+        if int(model["base_channels"]) != self.stage_channels[0]:
+            raise ValueError("base_channels must equal stage_channels[0]")
+        self.channels = self.stage_channels[0]
         self.tfc_growth_rate = int(model["tfc_growth_rate"])
-        if self.channels != self.tfc_growth_rate:
+        if self.projected_growth24:
+            if self.tfc_growth_rate != 24:
+                raise ValueError(f"{self.architecture_version} requires tfc_growth_rate=24")
+            if self.stage_channels != tuple(projected_spec["stage_channels"]):
+                raise ValueError(
+                    f"{self.architecture_version} requires stage_channels="
+                    f"{list(projected_spec['stage_channels'])}"
+                )
+            hidden_dims = tuple(int(value) for value in model["control_hidden_dims"])
+            if hidden_dims != tuple(projected_spec["control_hidden_dims"]):
+                raise ValueError(
+                    f"{self.architecture_version} requires control_hidden_dims="
+                    f"{list(projected_spec['control_hidden_dims'])}"
+                )
+        elif model.get("stage_channels") is not None and len(set(self.stage_channels)) != 1:
+            raise ValueError("non-uniform stage_channels require growth24_projected_b_v1")
+        elif self.channels != self.tfc_growth_rate:
             raise ValueError(
                 "base_channels and tfc_growth_rate are split for audit clarity, but must remain equal until "
                 "a LaSAFT-compatible projection rule is confirmed"
@@ -32,7 +64,7 @@ class Separator(nn.Module):
         if self.stem_freq % 8 != 0:
             raise ValueError("F-1 must be divisible by 8")
 
-        c = self.channels
+        c0, c3 = self.stage_channels[0], self.stage_channels[3]
         kernel = tuple(int(v) for v in model["kernel_size"])
         tfc_layers = int(model["tfc_layers"])
         tdf_factor = int(model["tdf_bottleneck_factor"])
@@ -40,31 +72,37 @@ class Separator(nn.Module):
         tdf_bias = bool(model["tdf_bias"])
 
         self.stem = nn.Sequential(
-            nn.Conv2d(4, c, kernel_size=(1, 2), padding=0, bias=False),
-            nn.BatchNorm2d(c),
+            nn.Conv2d(4, c0, kernel_size=(1, 2), padding=0, bias=False),
+            nn.BatchNorm2d(c0),
             nn.ReLU(inplace=True),
         )
 
         enc_freqs = [self.stem_freq, self.stem_freq // 2, self.stem_freq // 4]
         dec_freqs = [self.stem_freq // 4, self.stem_freq // 2, self.stem_freq]
-        self.encoders = nn.ModuleList(
-            [
-                ControlledTfcTdfBlock(c, c, freq, tfc_layers, kernel, tdf_factor, tdf_min, tdf_bias)
-                for freq in enc_freqs
-            ]
+        encoder_widths = list(self.stage_channels[:3])
+        decoder_widths = list(reversed(self.stage_channels[:3]))
+        self.encoders = nn.ModuleList([
+            self._make_block(width, width, freq, tfc_layers, kernel, tdf_factor, tdf_min, tdf_bias)
+            for width, freq in zip(encoder_widths, enc_freqs)
+        ])
+        self.downs = nn.ModuleList([
+            Downsample(self.stage_channels[index], self.stage_channels[index + 1])
+            for index in range(3)
+        ])
+        self.middle = self._make_block(
+            c3, c3, self.stem_freq // 8, tfc_layers, kernel, tdf_factor, tdf_min, tdf_bias
         )
-        self.downs = nn.ModuleList([Downsample(c) for _ in range(3)])
-        self.middle = ControlledTfcTdfBlock(
-            c, c, self.stem_freq // 8, tfc_layers, kernel, tdf_factor, tdf_min, tdf_bias
-        )
-        self.ups = nn.ModuleList([Upsample(c) for _ in range(3)])
-        self.decoders = nn.ModuleList(
-            [
-                ControlledTfcTdfBlock(2 * c, c, freq, tfc_layers, kernel, tdf_factor, tdf_min, tdf_bias)
-                for freq in dec_freqs
-            ]
-        )
-        self.head = nn.Conv2d(c, 4, kernel_size=(1, 2), padding=(0, 1))
+        self.ups = nn.ModuleList([
+            Upsample(self.stage_channels[index + 1], self.stage_channels[index])
+            for index in (2, 1, 0)
+        ])
+        self.decoders = nn.ModuleList([
+            self._make_block(
+                2 * width, width, freq, tfc_layers, kernel, tdf_factor, tdf_min, tdf_bias
+            )
+            for width, freq in zip(decoder_widths, dec_freqs)
+        ])
+        self.head = nn.Conv2d(c0, 4, kernel_size=(1, 2), padding=(0, 1))
 
         self.score_encoder = None
         if self.score_enabled:
@@ -73,7 +111,7 @@ class Separator(nn.Module):
             self.score_encoder = ScoreEncoder(
                 int(score_config.get("num_pitches", 128)),
                 int(score_config.get("hidden_channels", 32)),
-                c,
+                c3,
             )
 
         self.embeddings = ConditionEmbeddings(int(model["embedding_dim"]), self.num_timbres, self.num_positions)
@@ -87,25 +125,58 @@ class Separator(nn.Module):
         self.decoder_controller = None
         if self.route in {"split_stage", "split_stage_paper"}:
             self.encoder_controller = ConditionParameterGenerator(
-                int(model["embedding_dim"]), c, 3, hidden_dims, dropout, hidden_norm, output_norm
+                int(model["embedding_dim"]), encoder_widths, 3, hidden_dims, dropout, hidden_norm, output_norm
             )
             self.middle_controller = ConditionParameterGenerator(
-                int(model["embedding_dim"]), c, 1, hidden_dims, dropout, hidden_norm, output_norm
+                int(model["embedding_dim"]), [c3], 1, hidden_dims, dropout, hidden_norm, output_norm
             )
             self.decoder_controller = ConditionParameterGenerator(
-                int(model["embedding_dim"]), c, 3, hidden_dims, dropout, hidden_norm, output_norm
+                int(model["embedding_dim"]), decoder_widths, 3, hidden_dims, dropout, hidden_norm, output_norm
             )
         elif self.route == "mean_decoder":
             self.decoder_controller = ConditionParameterGenerator(
-                int(model["embedding_dim"]), c, 3, hidden_dims, dropout, hidden_norm, output_norm
+                int(model["embedding_dim"]), decoder_widths, 3, hidden_dims, dropout, hidden_norm, output_norm
             )
         elif self.route == "mid_dual_paper":
-            # Paper Fig.2 + §3.2 original: single mixed embedding, decoder-only injection.
             self.decoder_controller = ConditionParameterGenerator(
-                int(model["embedding_dim"]), c, 3, hidden_dims, dropout, hidden_norm, output_norm
+                int(model["embedding_dim"]), decoder_widths, 3, hidden_dims, dropout, hidden_norm, output_norm
             )
         else:
             raise ValueError(f"Unknown condition route: {self.route}")
+
+    def _make_block(
+        self,
+        in_channels: int,
+        out_channels: int,
+        freq_bins: int,
+        tfc_layers: int,
+        kernel: tuple[int, int],
+        tdf_factor: int,
+        tdf_min: int,
+        tdf_bias: bool,
+    ):
+        if self.projected_growth24:
+            return Growth24ProjectedControlledTfcTdfBlock(
+                in_channels,
+                out_channels,
+                self.tfc_growth_rate,
+                freq_bins,
+                tfc_layers,
+                kernel,
+                tdf_factor,
+                tdf_min,
+                tdf_bias,
+            )
+        return ControlledTfcTdfBlock(
+            in_channels,
+            out_channels,
+            freq_bins,
+            tfc_layers,
+            kernel,
+            tdf_factor,
+            tdf_min,
+            tdf_bias,
+        )
 
     def forward(self, spec, timbre_id, position_id, score_roll=None, return_debug: bool = False):
         self._validate_input(spec, timbre_id, position_id, score_roll)

@@ -25,7 +25,7 @@ class ConditionParameterGenerator(nn.Module):
     def __init__(
         self,
         embedding_dim: int,
-        channels: int,
+        channels: int | list[int] | tuple[int, ...],
         n_stages: int,
         hidden_dims: list[int],
         dropout: float,
@@ -33,12 +33,22 @@ class ConditionParameterGenerator(nn.Module):
         output_norm: str = "none",
     ):
         super().__init__()
-        self.channels = channels
-        self.n_stages = n_stages
+        if isinstance(channels, int):
+            stage_channels = [int(channels)] * int(n_stages)
+        else:
+            stage_channels = [int(value) for value in channels]
+        if len(stage_channels) != int(n_stages) or any(value <= 0 for value in stage_channels):
+            raise ValueError("channels must provide one positive width per stage")
+        self.stage_channels = tuple(stage_channels)
+        # Keep the historical attribute for callers that inspect uniform controllers.
+        self.channels = stage_channels[0] if len(set(stage_channels)) == 1 else self.stage_channels
+        self.n_stages = int(n_stages)
         self.hidden_norm = hidden_norm
         self.output_norm = output_norm
         self.uses_batch_norm = False
-        out_dim = n_stages * channels * channels + n_stages * channels
+        self.weight_sizes = tuple(value * value for value in self.stage_channels)
+        self.bias_sizes = self.stage_channels
+        out_dim = sum(weight + bias for weight, bias in zip(self.weight_sizes, self.bias_sizes))
 
         layers: list[nn.Module] = []
         in_dim = embedding_dim
@@ -66,10 +76,23 @@ class ConditionParameterGenerator(nn.Module):
     def forward(self, embedding):
         raw = self.net(embedding)
         bsz = raw.shape[0]
-        w_count = self.n_stages * self.channels * self.channels
-        weights = raw[:, :w_count].reshape(bsz, self.n_stages, self.channels, self.channels)
-        biases = raw[:, w_count:].reshape(bsz, self.n_stages, self.channels)
-        return [(weights[:, idx], biases[:, idx]) for idx in range(self.n_stages)]
+        weight_count = sum(self.weight_sizes)
+        weight_values = raw[:, :weight_count]
+        bias_values = raw[:, weight_count:]
+        results = []
+        weight_offset = 0
+        bias_offset = 0
+        for channels, weight_size, bias_size in zip(
+            self.stage_channels, self.weight_sizes, self.bias_sizes
+        ):
+            weight = weight_values[:, weight_offset : weight_offset + weight_size].reshape(
+                bsz, channels, channels
+            )
+            bias = bias_values[:, bias_offset : bias_offset + bias_size].reshape(bsz, channels)
+            results.append((weight, bias))
+            weight_offset += weight_size
+            bias_offset += bias_size
+        return results
 
 
 class GPoCM(nn.Module):

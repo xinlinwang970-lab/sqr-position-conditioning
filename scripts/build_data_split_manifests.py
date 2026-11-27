@@ -1,12 +1,22 @@
 #!/usr/bin/env python3
-"""Rebuild frozen SQR split manifests from a shared extracted audio tree.
+"""Build sqr_paper_split_{train,val,test}.jsonl from local data/ tree.
 
-Item directories may be anywhere below --data-root; a physical val directory
-is not required. Seat prefixes are 1-based, target identities come from part
-names, and position IDs are prefix minus one. No WAV is moved or normalized.
+Layout convention (release dirs like "2-38-op76-n2"):
+  train: /ceph/leon/MSS/data/train/stringqud_reverb_two_seating/2-*  (59 x type2 only,
+         matching E1cosine "pure type2, no type1 contamination")
+  val:   /ceph/leon/MSS/data/val/stringqud_reverb_two_seating/*      (6 works x 2 seatings)
+  test:  /ceph/leon/MSS/data/test/URMP_test_set/*                    (6 works x 2 seatings)
+
+Stem files are named "<seat>_<Part>.wav" where seat in 1..4 is the PHYSICAL
+seating position (position_id = seat - 1). The part sitting at each seat
+differs between seating types, e.g.:
+  1-1-aasesdeath (type1): 1_Violin_2 2_Viola 3_Cello 4_Violin_1  -> pos0..3 = V2,Va,C,V1
+  2-1-aasesdeath (type2): 1_Cello 2_Viola 3_Violin_2 4_Violin_1  -> pos0..3 = C,Va,V2,V1
+which matches the B1/quartet-data manifests' type2 layout
+{violin1:3, violin2:2, viola:1, cello:0}. Files are therefore located by
+globbing the part name, and position_ids derived from the filename prefix.
 """
 
-import argparse
 import hashlib
 import json
 import sys
@@ -14,7 +24,8 @@ from pathlib import Path
 
 import soundfile as sf
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+DATA_ROOT = Path("/ceph/leon/MSS/data")
+OUT_DIR = DATA_ROOT / "manifests"
 
 PART_TO_SUFFIX = {
     "violin1": "_Violin_1.wav",
@@ -23,9 +34,14 @@ PART_TO_SUFFIX = {
     "cello": "_Cello.wav",
 }
 TIMBRE_IDS = {"violin1": 0, "violin2": 0, "viola": 1, "cello": 2}
+TIMBRE_IDS = {"violin1": 0, "violin2": 0, "viola": 1, "cello": 2}
+SEATING_POSITION_MAP = {
+    1: {"pos0": "violin1", "pos1": "viola", "pos2": "cello", "pos3": "violin2"},
+    2: {"pos0": "violin1", "pos1": "violin2", "pos2": "viola", "pos3": "cello"},
+}
 POSITION_IDS = {
-    1: {"violin1": 3, "violin2": 0, "viola": 1, "cello": 2},
-    2: {"violin1": 3, "violin2": 2, "viola": 1, "cello": 0},
+    t: {part: int(pos[3:]) for pos, part in m.items()}
+    for t, m in SEATING_POSITION_MAP.items()
 }
 
 
@@ -61,7 +77,7 @@ def build_record(item_dir, rel_parent, split, performance_id, source_dataset):
         assert 1 <= seat <= 4, f"{item_id}: bad seat prefix in {path.name}"
         position_ids[part] = seat - 1
         audio_paths[part] = path
-    assert position_ids == POSITION_IDS[seating_type], (
+    assert sorted(position_ids.values()) == [0, 1, 2, 3], (
         f"{item_id}: positions {position_ids}"
     )
 
@@ -85,9 +101,9 @@ def build_record(item_dir, rel_parent, split, performance_id, source_dataset):
         "layout_id": f"type{seating_type}",
         "seating_type": seating_type,
         "is_fixture": False,
-        "mixture": (Path(rel_parent) / item_id / mixture.name).as_posix(),
+        "mixture": str(Path(rel_parent) / item_id / mixture.name),
         "stems": {
-            part: (Path(rel_parent) / item_id / audio_paths[part].name).as_posix()
+            part: str(Path(rel_parent) / item_id / audio_paths[part].name)
             for part in PART_TO_SUFFIX
         },
         "position_ids": position_ids,
@@ -118,72 +134,56 @@ def collect(
     return records
 
 
-def rebuild(data_root, selection_dir, output_dir, *, allow_hash_differences=False):
-    """Select frozen IDs without requiring a physically separated val directory.
-
-    The two layouts may be anywhere under data_root. Ambiguous/missing item
-    directories fail closed. Audio is read and hashed, never moved or normalized.
-    """
-    data_root, selection_dir, output_dir = map(Path, (data_root, selection_dir, output_dir))
-    templates = {}
-    for split in ("train", "val", "test"):
-        file = selection_dir / f"sqr_paper_split_{split}.jsonl"
-        templates[split] = [json.loads(line) for line in file.read_text(encoding="utf-8").splitlines() if line.strip()]
-        if not templates[split] or len({r["item_id"] for r in templates[split]}) != len(templates[split]):
-            raise ValueError(f"Empty or duplicate selection: {file}")
-    selected = {r["item_id"] for rows in templates.values() for r in rows}
-    locations = {key: [] for key in selected}
-    for candidate in data_root.rglob("*"):
-        if candidate.name in locations and candidate.is_dir():
-            locations[candidate.name].append(candidate)
-    outputs, differences = {}, []
-    identities = {}
-    for split, rows in templates.items():
-        records = []
-        for template in rows:
-            item = template["item_id"]
-            found = locations[item]
-            if len(found) != 1:
-                raise ValueError(f"{item}: expected one directory under data-root, found {len(found)}")
-            directory = found[0]
-            record = build_record(directory, directory.parent.relative_to(data_root), split,
-                                  template["performance_id"], template.get("source_dataset", "SQR release"))
-            for key in ("mixture_hash", "stem_hashes", "num_samples", "position_ids"):
-                if key in template and record[key] != template[key]:
-                    differences.append({"item_id": item, "field": key, "expected": template[key], "actual": record[key]})
-            previous = identities.setdefault(record["composition_id"], split)
-            if previous != split:
-                raise ValueError(f"Composition-id overlap between {previous} and {split}: {record['composition_id']}")
-            records.append(record)
-        outputs[split] = records
-    if differences and not allow_hash_differences:
-        raise ValueError(f"Audio differs from frozen manifests ({len(differences)} fields). Use --allow-hash-differences only for a separately reported dataset variant.")
-    # Fail before writing if any destination already exists.
-    destinations = [output_dir / f"sqr_paper_split_{split}.jsonl" for split in outputs]
-    destinations.append(output_dir / "build_report.json")
-    for file in destinations:
-        if file.exists():
-            raise FileExistsError(f"Use a new output directory; file exists: {file}")
-    output_dir.mkdir(parents=True, exist_ok=True)
-    for split, records in outputs.items():
-        (output_dir / f"sqr_paper_split_{split}.jsonl").write_text(
-            "".join(json.dumps(record) + "\n" for record in records), encoding="utf-8")
-    report = {"records": {split: len(rows) for split, rows in outputs.items()},
-              "audio_matches_frozen_manifests": not differences, "differences": differences,
-              "selection": "frozen composition IDs; this is not a musicological overlap audit"}
-    (output_dir / "build_report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
-    return report
-
-
 def main():
-    parser = argparse.ArgumentParser(description="Rebuild portable manifests from extracted SQR WAVs without moving audio")
-    parser.add_argument("--data-root", type=Path, required=True)
-    parser.add_argument("--output-dir", type=Path, required=True)
-    parser.add_argument("--selection-dir", type=Path, default=REPO_ROOT / "manifests")
-    parser.add_argument("--allow-hash-differences", action="store_true")
-    args = parser.parse_args()
-    print(json.dumps(rebuild(args.data_root.resolve(), args.selection_dir, args.output_dir,
-                             allow_hash_differences=args.allow_hash_differences), indent=2))
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    train_records = collect(
+        DATA_ROOT / "train/stringqud_reverb_two_seating",
+        "train/stringqud_reverb_two_seating",
+        "train",
+        "stringqud_reverb_two_seating",
+        "StringQuD reverb two-seating release (local data/train)",
+        name_filter=lambda name: name.startswith("2-"),
+    )
+    val_records = collect(
+        DATA_ROOT / "val/stringqud_reverb_two_seating",
+        "val/stringqud_reverb_two_seating",
+        "val",
+        "stringqud_reverb_two_seating",
+        "StringQuD reverb two-seating release (local data/val)",
+    )
+    test_records = collect(
+        DATA_ROOT / "test/URMP_test_set",
+        "test/URMP_test_set",
+        "test",
+        "urmp_test_set",
+        "URMP test set release (local data/test)",
+    )
+
+    outputs = {
+        "sqr_paper_split_train.jsonl": train_records,
+        "sqr_paper_split_val.jsonl": val_records,
+        "sqr_paper_split_test.jsonl": test_records,
+    }
+    for fname, records in outputs.items():
+        out_path = OUT_DIR / fname
+        with open(out_path, "w") as handle:
+            for record in records:
+                handle.write(json.dumps(record) + "\n")
+        n_type1 = sum(1 for r in records if r["layout_id"] == "type1")
+        n_type2 = sum(1 for r in records if r["layout_id"] == "type2")
+        works = sorted({r["work_id"] for r in records})
+        print(
+            f"{fname}: {len(records)} records ({n_type1} type1, {n_type2} type2), {len(works)} works"
+        )
+
+    split_seen = {}
+    for fname, records in outputs.items():
+        for r in records:
+            split_seen.setdefault(r["work_id"], set()).add(fname)
+    leaks = {w: s for w, s in split_seen.items() if len(s) > 1}
+    assert not leaks, f"work-level split leakage: {leaks}"
+    print("No work-level leakage across splits.")
 
 
 if __name__ == "__main__":

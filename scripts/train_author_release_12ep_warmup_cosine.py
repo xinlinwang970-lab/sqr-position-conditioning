@@ -1,14 +1,26 @@
 #!/usr/bin/env python3
-"""Historical train_author_release_12ep_warmup_cosine: historical 60-record dense baseline.
+"""Dense-crop trainer for c=124 type2-only paper-route.
 
-Portable setup only; see docs/KNOWN_LIMITATIONS.md before interpreting results.
+Sampling design (replaces sha256-hash random crops):
+  - 1 epoch = full non-overlapping 4.06s slabs of every train song × 4 parts.
+  - Each (song, segment_idx) pair contributes 4 queries, one per part.
+  - Order of (record_idx, segment_idx, part_idx) queries is shuffled per epoch.
+  - A final song tail shorter than crop_samples is DISCARDED (~125s aggregate
+    across 60 songs, 0.7% of total audio).
+
+Data layout (from scripts/build_dense_cache.py):
+  /mnt/sda/MSS/data/cache_dense_author_release/
+    train/{item_id}.npz
+    val/{item_id}.npz
+    test/{item_id}.npz
+    cache_index.json
+
+.npz fields: mixture, violin1..cello (float32 [2, T]), position_ids (int32 [4]),
+             sample_rate, crop_samples, num_segments, item_id, composition_id, layout_id, split.
 """
 
 import sys
-from pathlib import Path
-
-REPO_ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(REPO_ROOT / "src"))
+sys.path.insert(0, "/mnt/sda/MSS/sqr-position-repro/src")
 
 import json
 import random
@@ -22,15 +34,17 @@ import soundfile as sf
 from torch.utils.data import default_collate
 
 from sqr_repro.config import load_config
-from sqr_repro.release_paths import prepare_training, validate_inputs, write_launch_record
 from sqr_repro.paper_c0.dataset import PARTS
 from sqr_repro.paper_c0.model_factory import build_model
 from sqr_repro.audio import AudioConfig, AudioTransform
+from sqr_repro.evaluation import (
+    evaluate_full_length_legacy_v1 as _evaluate_full_length_legacy_v1,
+)
 from sqr_repro.models.separator import Separator
 from sqr_repro.losses import packed_complex_mse
 
 
-CACHE_ROOT = REPO_ROOT / "data/cache_dense_author_release"
+CACHE_ROOT = Path("/mnt/sda/MSS/data/cache_dense_author_release")
 BATCH_SIZE = 4
 TARGET_EPOCHS = 12
 SEED = 2026
@@ -39,11 +53,16 @@ VAL_SPLIT = "val"
 PART_TO_TIMBRE = {"violin1": 0, "violin2": 0, "viola": 1, "cello": 2}
 
 
-def compute_sdr(estimate, reference):
-    ref_energy = torch.sum(reference ** 2)
-    err = estimate - reference
-    return 10 * torch.log10(ref_energy / (torch.sum(err ** 2) + 1e-8))
-
+def evaluate_full_length(model, manifest_path, data_root, device, config):
+    return _evaluate_full_length_legacy_v1(
+        model,
+        manifest_path,
+        data_root,
+        device,
+        config,
+        include_composition_id=False,
+        pad_time_to_multiple_of_8=False,
+    )
 
 class DenseCropCache:
     """In-memory cache of cached .npz records for one split."""
@@ -149,80 +168,13 @@ def fetch_query(cache: DenseCropCache, rec_idx: int, seg_idx: int, part_idx: int
     }
 
 
-def inference_full_length(model, mixture, transform, timbre_id, position_id, device, num_frames, hop_length, overlap_ratio=0.5):
-    C, T = mixture.shape
-    seg_samples = (num_frames - 1) * hop_length
-    hop_samples = int(seg_samples * (1 - overlap_ratio))
-    if T < seg_samples:
-        mixture = torch.nn.functional.pad(mixture, (0, seg_samples - T))
-        T = mixture.shape[-1]
-    output = torch.zeros(C, T, dtype=torch.float32)
-    weight = torch.zeros(T, dtype=torch.float32)
-    window = torch.hann_window(seg_samples, periodic=True)
-    starts = list(range(0, max(T - seg_samples + 1, 1), hop_samples))
-    if not starts or starts[-1] + seg_samples < T:
-        starts.append(max(T - seg_samples, 0))
-    for start in starts:
-        end = min(start + seg_samples, T)
-        chunk = mixture[:, start:end]
-        if chunk.shape[-1] < seg_samples:
-            chunk = torch.nn.functional.pad(chunk, (0, seg_samples - chunk.shape[-1]))
-        spec = transform.stft(chunk.unsqueeze(0).to(device))
-        t = torch.tensor([timbre_id], dtype=torch.long, device=device)
-        p = torch.tensor([position_id], dtype=torch.long, device=device)
-        with torch.no_grad():
-            out = model(spec, t, p)
-        wave = transform.istft(out, length=seg_samples)[0].cpu()
-        w = window[:end - start]
-        output[:, start:end] += wave[:, :end - start] * w
-        weight[start:end] += w
-    return (output / torch.clamp(weight, min=1e-8))[:, :T]
 
 
-def evaluate_full_length(model, manifest_path, data_root, device, config):
-    records = [json.loads(l) for l in open(manifest_path)]
-    sr = config["audio"]["sample_rate"]
-    transform = AudioTransform(AudioConfig.from_dict(config["audio"]))
-    num_frames = config["audio"]["num_frames"]
-    hop_length = config["audio"]["hop_length"]
-    results = []
-    model.eval()
-    for record in records:
-        item_id = record["item_id"]
-        mix, _ = sf.read(str(Path(data_root) / record["mixture"]), dtype="float32", always_2d=True)
-        mixture = torch.from_numpy(mix.T.copy())
-        for part_id in PARTS:
-            estimate = inference_full_length(
-                model, mixture, transform,
-                PART_TO_TIMBRE[part_id], record["position_ids"][part_id],
-                device, num_frames, hop_length,
-            )
-            ref, _ = sf.read(str(Path(data_root) / record["stems"][part_id]), dtype="float32", always_2d=True)
-            reference = torch.from_numpy(ref.T.copy())
-            min_len = min(estimate.shape[-1], reference.shape[-1])
-            sdr = compute_sdr(estimate[..., :min_len], reference[..., :min_len]).item()
-            results.append({
-                "item_id": item_id,
-                "part_id": part_id,
-                "layout_id": record["layout_id"],
-                "sdr": sdr,
-            })
-    model.train()
-    return results
 
 
 def main():
-    global CACHE_ROOT
-    config, launch = prepare_training(REPO_ROOT / "configs/author_release_12ep_warmup_cosine.yaml",
-                                      repo_root=REPO_ROOT, baseline=True, custom=False)
-    validate_inputs(config, launch, expected_train_records=60, baseline=True)
-    if launch.check_only:
-        return
-    if config["training"]["batch_size"] != BATCH_SIZE or config["experiment"]["seed"] != SEED:
-        raise ValueError("Historical entrypoint uses fixed batch size and seed; see script constants")
-    write_launch_record(config, launch, script=__file__, runtime_checkpointing=False,
-                        batch_size=BATCH_SIZE, seed=SEED, target_epochs=TARGET_EPOCHS)
-    CACHE_ROOT = launch.cache_root
+    CONFIG = "/mnt/sda/MSS/sqr-position-repro/configs/author_release_12ep_warmup_cosine.yaml"
+    config = load_config(CONFIG)
     run_dir = Path(config["paths"]["run_root"])
     run_dir.mkdir(parents=True, exist_ok=True)
 
@@ -290,8 +242,8 @@ def main():
     start_time = time.time()
     completed = 0
 
-    val_manifest = launch.val_manifest
-    test_manifest = launch.test_manifest
+    val_manifest = "/mnt/sda/MSS/data/manifests/sqr_val_v2.jsonl"
+    test_manifest = "/mnt/sda/MSS/data/manifests/sqr_test_fixed.jsonl"
     data_root = config["data"]["root"]
 
     while completed < total_updates:
@@ -343,7 +295,7 @@ def main():
             }, ckpt_path)
             print(f"  -> Checkpoint: {ckpt_path}", flush=True)
 
-            val_results = evaluate_full_length(model, val_manifest, launch.val_data_root, device, config)
+            val_results = evaluate_full_length(model, val_manifest, data_root, device, config)
             val_sdrs = [r["sdr"] for r in val_results]
             by_layout = defaultdict(list)
             for r in val_results:
@@ -381,9 +333,9 @@ def main():
     # Final test
     print(f"\n{'='*70}\nFINAL TEST (full-length overlap-add)\n{'='*70}")
     test_model = Separator(config).to(device)
-    ckpt = torch.load(final_ckpt, map_location=device, weights_only=True)
+    ckpt = torch.load(final_ckpt, map_location=device, weights_only=False)
     test_model.load_state_dict(ckpt["model_state_dict"])
-    test_results = evaluate_full_length(test_model, test_manifest, launch.test_data_root, device, config)
+    test_results = evaluate_full_length(test_model, test_manifest, data_root, device, config)
 
     sdrs = [r["sdr"] for r in test_results]
     print(f"Samples: {len(sdrs)}")

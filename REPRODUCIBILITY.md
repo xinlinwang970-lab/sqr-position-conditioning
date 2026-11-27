@@ -1,55 +1,125 @@
-# Reproducibility status
+# Reproducibility Guide
 
-This release supports verification at several distinct levels.
+## Prerequisites
 
-| Level | Evidence and scope | Status at release preparation |
-|---|---|---|
-| Saved-score arithmetic | `python scripts/verify_results.py`; 11 original result JSONs, 528 query rows, complete six-recording grids | Verified locally |
-| Paired layout descriptions | `python scripts/summarize_layout_pairs.py --check`; five saved-score runs, 24 source-part pairs per run, input hashes and derived statistics | Deterministically recomputable; post-hoc descriptive analysis |
-| Preserved evidence bytes | SHA-256 for imported logs/configs/selections and original result files | Verified locally |
-| Model/data/tool behavior | CPU pytest suite, real WAV fixtures, forward/backward, routing and cache checks | See `results/validation/` for exact run |
-| Checkpoint identity | Eight original files were hashed and safely loaded during the local audit; metadata is bundled | Local inspection only; weights excluded |
-| Fresh full-song inference | Requires matching weights and upstream audio | Not rerun in this preparation |
-| Full GPU training | Requires original audio/cache identity, training environment and budget | Not rerun |
-| Bitwise historical restart | Historical scripts do not save RNG states | Not supported |
-| Original-paper reproduction | Architecture/data/metric differences remain | Not established |
+1. Clone this repository
+2. Set up the environment (see `ENVIRONMENT.md`)
+3. Obtain the StringQuD reverb two-seating dataset and URMP test set
+4. Place data under a root directory with the expected manifest structure
 
-## Environment
+## Data layout
 
-The local release checks use Windows 11, Python 3.14.3, PyTorch 2.14.0+cu126 on CPU, NumPy 2.4.3, SoundFile 0.13.1, PyYAML 6.0.3 and pytest 9.0.3. The actual environment and JUnit results are retained under `results/validation/`. CUDA availability does not imply that GPU training was tested.
+```
+<data_root>/
+├── manifests/
+│   ├── sqr_paper_split_train.jsonl    # 59 type2 works
+│   ├── sqr_paper_split_val.jsonl      # 12 records (6 type1 + 6 type2)
+│   └── sqr_paper_split_test.jsonl     # 12 URMP records (6 type1 + 6 type2)
+├── train/
+│   └── stringqud_reverb_two_seating/
+│       └── <work_id>/
+│           ├── mix_<work_id>.wav
+│           ├── 1_Violin_1.wav  (or similar)
+│           ├── 2_Viola.wav
+│           ├── 3_Violin_2.wav
+│           └── 4_Cello.wav
+├── val/
+│   └── stringqud_reverb_two_seating/
+│       └── ...
+└── test/
+    └── URMP_test_set/
+        └── ...
+```
 
-`pyproject.toml` declares Python >=3.10,<3.15. The CI workflow runs CPU checks on Linux with Python 3.10 and 3.11, but its presence is not evidence that remote CI has run. Dependencies are not a lockfile for historical training. A future replication should pin its complete environment before training and record GPU, driver, CUDA and library versions.
+Each manifest record contains:
+- `item_id`, `composition_id`, `layout_id` (type1/type2)
+- `mixture`: relative path to mixture WAV
+- `stems`: dict of part → relative path to stem WAV
+- `position_ids`: dict of part → seat index (0-3)
+- `num_samples`, `sample_rate`
 
-Install with `python -m pip install -e ".[torch,test]"`, then run `python -m pytest -q` and `python scripts/verify_results.py` from the repository root. Bundled relative data/run defaults resolve from the repository; explicitly supplied CLI paths resolve from the caller's current directory.
+## Running experiments
 
-## Data identity
+### 1. Train a model
 
-`manifests/sqr_paper_split_*.jsonl` preserve the 59/12/12 release selection and file hashes. They are not a guarantee that the extracted files on a new machine match. Rebuild into a new directory and inspect `build_report.json`. The builder reads shared extracted trees, preserves split membership, and never moves or normalizes WAVs.
+```bash
+export PYTHONPATH=/path/to/src
+export CUDA_VISIBLE_DEVICES=0
 
-Historical baseline selection uses 60 training items and five validation composition IDs (10 layouts). The metadata was recovered from a normalization workspace. Its original training configuration points to a different cache under the original data workspace. The actual original cache index and its WAV-byte provenance were not bundled. Rebuilding the cache with current inputs is a new run, not proof of exact baseline identity.
+# g24 B/MDP (best architecture, no intervention)
+python scripts/train_growth24_projected_b_v1_mdp_1000ep.py
 
-E1cosine-B is separately archived. Its original checkpoint configuration names `quartet-data/train`, while the result JSON names a checkpoint on a different server path. The original custom train/val manifests are unavailable here. Neither matching a run name nor matching update counts proves that this was the same 59-item SQR experiment. The command therefore requires explicit custom roots and manifests, and the report excludes it from same-data causal comparisons.
+# g24 B/MDP with position-swap intervention (p=0.15, wcos)
+python scripts/train_growth24_projected_b_v1_mdp_swap15.py
 
-## Historical numerical behavior
+# g24 B/MDP with position-swap (p=0.15, const LR — paper-strict)
+python scripts/train_growth24_projected_b_v1_mdp_constlr_swap15.py
+```
 
-No model-core numerical changes were made for release preparation. Non-main functions/classes in all eight training scripts were compared with the source snapshot at the Python AST level; the inventory is under `results/provenance/numerical_function_preservation.json`. This check covers training helpers and inference functions, not an end-to-end trajectory. Main-function changes are path setup, validation, launch metadata and safe checkpoint loading.
+### 2. Evaluate a checkpoint on URMP test
 
-Important retained differences are described in [KNOWN_LIMITATIONS.md](docs/KNOWN_LIMITATIONS.md): actual activation checkpoint wrappers differ across experiments; E4's two controller calls use independent dropout masks; the legacy overlap-add has a zero first-sample endpoint and pads short recordings; historical restarts do not restore RNG state. Fixing these for a new protocol requires newly named runs and fresh results.
+```bash
+python scripts/evaluate_checkpoint.py \
+    --config configs/<config>.yaml \
+    --checkpoint runs/<run_name>/checkpoint_final.pt \
+    --manifest <data_root>/manifests/sqr_paper_split_test.jsonl \
+    --root <data_root> \
+    --tag final
+```
 
-Training script constants control seed, batch size, target epochs and interventions. The config alone is not the effective protocol. Some generic `inference` YAML fields (positive blend floor, original length) are ignored by legacy script inference. `release_launch.json` records the actual wrapper setting and selected paths. Do not edit a YAML field and assume every historical script consumes it.
+### 3. Audit architecture parameters
 
-## Result selection
+```bash
+python scripts/audit_architecture_params.py configs/<config>.yaml
+```
 
-Files ending in `ep274` and `ep424` use zero-based epoch labels: they correspond to 275 and 425 completed epochs. Tables must also report update counts. Dense baseline epochs enumerate 17,412 queries and 4,353 full batches; random-crop SQR epochs enumerate 236 queries and 59 full batches. Their epoch numbers are not directly comparable.
+## Evaluation protocol: `legacy_v1`
 
-The URMP release was evaluated repeatedly during development. Available intermediate evaluations are bundled rather than hidden. These are development observations, not an untouched final test. Future hyperparameter/checkpoint selection must use validation data, with independent new test material for a confirmatory study. Four parts and two layouts from the same recording are correlated; 48 scores are not 48 independent works.
+All checked-in result-bearing configs select `evaluation_protocol: legacy_v1`.
+The training entrypoints and `scripts/evaluate_checkpoint.py` call the same
+implementation in `src/sqr_repro/evaluation.py`; the protocol is not copied
+independently into each script.
 
-No numerical tolerance such as "within 0.05 dB" is promised for a new training run. No cross-work or synthetic-to-real population conclusion follows from this release alone.
+| Element | Executed behavior |
+|---|---|
+| Metric | scale-dependent waveform energy ratio, `10*log10(sum(ref²) / (sum((estimate-ref)²) + 1e-8))` |
+| Segment length | `(num_frames - 1) * hop_length` samples |
+| Requested overlap | `0.5` |
+| Stride | `int(segment_samples * 0.5)`; deliberately not aligned to an STFT-hop multiple |
+| Blend | periodic Hann window (`periodic=True`) |
+| Blend denominator | `clamp(weight, min=1e-8)` |
+| Short input | pad to one segment for inference; score the common estimate/reference length |
+| Aggregates | mean, median, type1 median, type2 median, and query count |
 
-## Paired saved-score summaries
+`legacy_v1` is a compatibility label for the protocol that generated the
+reported results. It is not a claim that this is the paper authors' SDR
+implementation, and it does not introduce a corrected alternative protocol.
 
-`results/layout_pair_summary.json` is derived from five existing result files; the original files remain unchanged. Recompute it with `python scripts/summarize_layout_pairs.py`, write a separate file with `--output`, or check the committed version without writing with `--check`. The CLI uses repository-relative default paths, including when called from another working directory.
+## Key hyperparameters (all experiments)
 
-Pairs identify the same source recording and target part across type1/type2. For this frozen selection, `composition_id` identifies the source recording; the legacy baseline adapter removes the first layout prefix from `item_id`. All runs must contain the same six sources and four parts, with exactly one score per layout and pair.
+| Parameter | Value |
+|---|---|
+| Optimizer | Adam (lr=5e-4, betas=[0.9,0.999], eps=1e-8, weight_decay=0) |
+| Batch size | 4 |
+| Training length | 1000 epochs (59000 updates) |
+| Precision | fp32 |
+| Loss | packed_complex_mse |
+| STFT | n_fft=2048, hop=1024, hann window |
+| Crop | 128 frames (g24) or 176 frames (dense124), random per epoch |
+| Seed | 2026 |
+| Validation | Every 25 epochs (full-length WaveSDR on 12 val records) |
+| Test | Final-only (full-length WaveSDR on 12 URMP records) |
 
-The signed pooled-median difference, median paired difference, median absolute paired difference, mean absolute paired difference and mean signed paired difference are separate quantities. Every difference uses unrounded scores. The JSON also records per-part summaries over six pairs and the complete pair list. No confidence intervals or significance tests are computed. The 24 pairs are clustered within six source recordings, reused across methods. See the [paired analysis](docs/EXPERIMENT_REPORT.md#paired-layout-analysis) for definitions and attribution limits.
+## Auto-resume
+
+Training scripts automatically resume from the latest `checkpoint_*.pt` in the
+run directory if interrupted.
+
+## Reproducibility notes
+
+- All experiments use seed=2026 (single seed). Multi-seed validation is left
+  as future work.
+- Random crop offsets are deterministic: SHA-256(seed, epoch, item_id) →
+  crop start. Same seed + epoch + item always produces the same crop.
+- DataLoader shuffle uses generator seed = SEED + epoch, ensuring different
+  shuffle order per epoch but full reproducibility.

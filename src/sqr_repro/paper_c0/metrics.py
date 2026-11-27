@@ -1,4 +1,9 @@
-"""Explicit waveform metric definitions for Paper C0 diagnostics."""
+"""Non-result-bearing Paper C0 diagnostics.
+
+The reported experiments use ``sqr_repro.evaluation`` and its versioned
+``legacy_v1`` WaveSDR path.  This NumPy-only module is retained for isolated
+diagnostic probes and is not an alternative result-evaluation entrypoint.
+"""
 
 from __future__ import annotations
 

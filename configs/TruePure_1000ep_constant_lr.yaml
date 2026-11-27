@@ -1,0 +1,91 @@
+schema_version: 1
+experiment:
+  name: TruePure_1000ep_constant_lr
+  status: paper_strict_protocol_pure_type2_constant_lr_1000ep
+  seed: 2026
+  data_seed: 2026
+  sampler_seed: 2026
+  model_seed: 2026
+  test_only: false
+  run_mode: w24_engineering_pilot
+paths:
+  run_root: /ceph/leon/MSS/runs/TruePure_1000ep_constant_lr
+data:
+  root: /ceph/leon/MSS/data
+  manifest: /ceph/leon/MSS/data/manifests/sqr_paper_split_train.jsonl
+  target_sampling: paper_c0_wav_randomcrop
+  pair_cycle: []
+  augmentation: none
+  num_workers: 0
+  pin_memory: false
+  drop_last: true
+audio:
+  sample_rate: 44100
+  channels: 2
+  n_fft: 2048
+  win_length: 2048
+  hop_length: 1024
+  num_frames: 176
+  center: true
+  pad_mode: reflect
+  window: hann
+  window_periodic: true
+  normalized: false
+  pack_order: [real_left, real_right, imag_left, imag_right]
+  stft_dtype: float32
+model:
+  n_blocks: 7
+  base_channels: 124
+  tfc_growth_rate: 124
+  internal_channels: 124
+  tfc_layers: 5
+  kernel_size: [3, 3]
+  tdf_bottleneck_factor: 16
+  tdf_min_units: 16
+  tdf_bias: false
+  num_timbres: 3
+  num_positions: 4
+  condition_route: mid_dual_paper
+  embedding_dim: 32
+  control_hidden_dims: [64, 128, 256]
+  control_dropout: 0.1
+  control_hidden_norm: layer_norm
+  control_output_norm: none
+  modulation: gpocm
+  modulation_position: after_tfc_before_tdf
+  output_mode: complex_mapping
+  activation_checkpointing: true
+  architecture_version: TruePure_mid_dual_paper_c124_constlr_1000ep_v1
+training:
+  batch_size: 4
+  gradient_accumulation_steps: 1
+  precision: fp32
+  loss: packed_complex_mse
+  optimizer: adam
+  learning_rate: 0.0005
+  adam_betas: [0.9, 0.999]
+  adam_eps: 1.0e-8
+  weight_decay: 0.0
+  foreach: false
+  gradient_clip_norm: null
+  scheduler: constant
+  max_attempted_updates: 59000
+  validate_every_updates: 1475
+  checkpoint_every_updates: 1475
+  monitor: none
+  monitor_mode: min
+  compile: false
+inference:
+  batch_size: 1
+  evaluation_protocol: legacy_v1
+  overlap_ratio_requested: 0.5
+  align_stride_to_stft_hop: false
+  blend_window: hann
+  blend_weight_floor: 1.0e-8
+  keep_original_length: true
+  save_subtype: FLOAT
+profiling:
+  warmup_updates: 0
+  measured_updates: 1
+  reserved_memory_budget_gib: 30
+  budget_is_advisory: true

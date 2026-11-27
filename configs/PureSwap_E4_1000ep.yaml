@@ -1,5 +1,3 @@
-# Paths are relative to the repository. Historical script constants and
-# runtime wrappers are documented in docs/KNOWN_LIMITATIONS.md.
 schema_version: 1
 experiment:
   name: PureSwap_E4_1000ep
@@ -13,8 +11,8 @@ experiment:
 paths:
   run_root: runs/PureSwap_E4_1000ep_pinv
 data:
-  root: data
-  manifest: manifests/sqr_paper_split_train.jsonl
+  root: /mnt/sda/MSS/data
+  manifest: /mnt/sda/MSS/data/manifests/sqr_paper_split_train.jsonl
   target_sampling: paper_c0_wav_randomcrop
   pair_cycle: []
   augmentation: none
@@ -33,11 +31,7 @@ audio:
   window: hann
   window_periodic: true
   normalized: false
-  pack_order:
-  - real_left
-  - real_right
-  - imag_left
-  - imag_right
+  pack_order: [real_left, real_right, imag_left, imag_right]
   stft_dtype: float32
 model:
   n_blocks: 7
@@ -45,9 +39,7 @@ model:
   tfc_growth_rate: 124
   internal_channels: 124
   tfc_layers: 5
-  kernel_size:
-  - 3
-  - 3
+  kernel_size: [3, 3]
   tdf_bottleneck_factor: 16
   tdf_min_units: 16
   tdf_bias: false
@@ -55,10 +47,7 @@ model:
   num_positions: 4
   condition_route: mid_dual_paper
   embedding_dim: 32
-  control_hidden_dims:
-  - 64
-  - 128
-  - 256
+  control_hidden_dims: [64, 128, 256]
   control_dropout: 0.1
   control_hidden_norm: layer_norm
   control_output_norm: none
@@ -74,13 +63,14 @@ training:
   loss: packed_complex_mse
   optimizer: adam
   learning_rate: 0.0005
-  adam_betas:
-  - 0.9
-  - 0.999
-  adam_eps: 1.0e-08
+  adam_betas: [0.9, 0.999]
+  adam_eps: 1.0e-8
   weight_decay: 0.0
   foreach: false
   gradient_clip_norm: null
+  # E4: position-invariance regularization on GPoCM decoder parameters.
+  # No input perturbation — position is always correct.
+  # Regularization penalizes ||W(t,p) - W(t,p')||^2 + ||b(t,p) - b(t,p')||^2.
   scheduler: warmup_cosine
   max_attempted_updates: 59000
   validate_every_updates: 0
@@ -90,10 +80,11 @@ training:
   compile: false
 inference:
   batch_size: 1
+  evaluation_protocol: legacy_v1
   overlap_ratio_requested: 0.5
-  align_stride_to_stft_hop: true
-  blend_window: hann_positive_floor
-  blend_weight_floor: 0.0001
+  align_stride_to_stft_hop: false
+  blend_window: hann
+  blend_weight_floor: 1.0e-8
   keep_original_length: true
   save_subtype: FLOAT
 profiling:

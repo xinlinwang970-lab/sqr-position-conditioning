@@ -1,132 +1,227 @@
-# Historical experiment results — corrected release report
+# Position-Shortcut Learning in String Quartet Source Separation: Combinatorial Generalization and Forward Transfer
 
-Scores below are recomputed from preserved per-query JSON, not newly generated from audio/checkpoints. The metric is gain-dependent waveform SDR in dB. Single seed 2026, repeated URMP test inspection, different data/routes/schedules and retained numerical confounds limit interpretation.
+**Project**: sqr-position-repro (independent reimplementation + ablation)
+**Model**: 30.44M-parameter `mid_dual_paper` variant (paper reports 46M, rounded)
+**Test set**: URMP StringQuartet, 6 works × 2 seatings × 4 stems = 48 WaveSDR samples
+**Metric**: full-length `legacy_v1` 50%-overlap sliding-window WaveSDR (dB)
+**Reproduction status**: this is an independent ablation model, not an exact
+reproduction. The paper reports 46M, but does not provide enough layer-width
+and controller details to reconstruct the reported model uniquely. Absolute
+SDR numbers are not directly comparable; findings below compare runs within
+the stated model and protocol. See [`ARCHITECTURE.md`](ARCHITECTURE.md) and
+[`GROWTH24_46M_CANDIDATES.md`](GROWTH24_46M_CANDIDATES.md).
 
-## Reported checkpoints
+---
 
-| Run | Completed epochs | Progress counter | Mean | Median | type1 median | type2 median | Δ pooled medians |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| Dense baseline | 12 | 52,236 | 1.326802 | 1.160451 | -0.329886 | 1.636063 | 1.965948 |
-| E1cosine-B (custom, provenance unresolved) | 275 | 16,225 | 1.618700 | 1.436325 | 1.391770 | 1.477811 | 0.086041 |
-| E2 | 275 | 16,225 | 1.025635 | 0.814170 | 0.033785 | 1.481356 | 1.447570 |
-| E3 | 275 | 16,225 | 1.408641 | 1.178148 | 0.677117 | 1.631006 | 0.953889 |
-| P10 | 425 | 25,075 | 2.207668 | 2.008556 | 1.748030 | 2.118945 | 0.370914 |
-| P15 | 425 | 25,075 | 2.514978 | 2.300746 | 2.265129 | 2.300746 | 0.035617 |
-| P50 | 425 | 25,075 | 2.261170 | 1.923849 | 1.995984 | 1.913190 | -0.082794 |
-| E4 | 425 | 25,075 | 2.316744 | 2.192866 | 2.091327 | 2.192866 | 0.101539 |
+## 1. Motivation
 
-The subtraction compares two pooled medians. It is not the median paired per-recording difference, and a smaller difference alone does not imply higher separation quality.
+A position-conditioned string quartet source separation model accepts a discrete seating index $p \in \{0,1,2,3\}$ as an explicit hint to extract the instrument at a given physical seat from the mixture $x$. The internal conditioning path of the model is:
 
-A filename `ep274` denotes epoch index 274 after completing 275 epochs; `ep424` denotes 425 completed epochs. The baseline epoch convention is dense enumeration and cannot be compared to random-crop epochs as an equal budget. The saved script counter can advance on a skipped non-finite step.
+$$
+e_t = E_t(t), \quad e_p = E_p(p), \quad e_m = \tfrac{1}{2}(e_t + e_p)
+$$
 
-## Paired layout analysis
+$e_m$ is passed through a controller MLP to produce GPoCM gate parameters
+$\mathbf{W}(e_m), \mathbf{b}(e_m)$, which are injected into the decoder
+(`mid_dual_paper` route). GPoCM applies these gates to audio activations;
+it does not replace the audio path.
 
-This is post-hoc descriptive analysis of existing saved scores, with no new training or model inference. The [derived JSON](../results/layout_pair_summary.json) records input SHA-256 hashes, every paired score/difference, and part-level summaries.
+When the seat→part mapping $L$ is deterministic in the training data, the
+model may rely too heavily on condition labels and underuse mixture audio
+$x$. We call this the **position-shortcut hypothesis**. In this
+`mid_dual_paper` model, however, the gate is generated from the mixed
+timbre–position embedding $e_m$ and applied to audio features. The route
+alone does not imply a position-only lookup or prove that $x$ is ignored.
+The experiments evaluate output performance across:
 
-### Pairing and definitions
+1. **Combinatorial generalization**: At test time, an unseen seating layout $L'$ appears.
+2. **Forward transfer**: Training uses synthetic MuseScore/StringQuD data and evaluation uses real URMP recordings.
 
-Pair by `(source_id, part_id)`, with exactly one type1 and one type2 score. For this frozen selection, `composition_id` identifies the source recording; the legacy baseline adapter removes only the first layout prefix from `item_id`. Using the complete layout-prefixed item ID as the pairing key would separate the two layouts instead of matching them.
+These evaluations can be consistent with the shortcut hypothesis, but do not
+directly measure whether the model uses audio. The experiments compare how
+interventions change layout and domain metrics.
 
-Each method must contain the same six source IDs, all four canonical parts, 24 pairs and 48 finite scores. Duplicate keys, missing layouts, inconsistent source/layout identities and different source cohorts fail explicitly.
+---
 
-For source `i` and part `k`, let `s1[i,k]` and `s2[i,k]` be type1/type2 SDRs and `d[i,k] = s2[i,k] - s1[i,k]`. All statistics use unrounded scores, in dB:
+## 2. Problem Definition
 
-| Quantity | Definition |
-|---|---|
-| Overall mean SDR, Q | Mean of all 48 scores |
-| Δ pooled medians, G | `median(s2) - median(s1)` |
-| Median paired Δ, D | `median(d)` |
-| Median paired abs(Δ) | `median(abs(d))` |
-| Mean paired abs(Δ) | `mean(abs(d))` |
-| Mean paired Δ | `mean(d)` |
+### 2.1 Data and Layouts
 
-Take paired differences before absolute values and aggregation. `median(abs(d))`, `abs(median(d))`, and `abs(median(s2)-median(s1))` measure different things. Smaller absolute paired differences describe less score change, but must be read together with separation quality; consistently poor separation can also have small differences.
+Training distribution $\mathcal{D}_{\text{train}} = \{(x, \mathbf{y}, L_{\text{type2}})\}$ contains only the type2 layout (59 works);
+Test distribution $\mathcal{D}_{\text{test}} = \{(x, \mathbf{y}, L) : L \in \{L_{\text{type1}}, L_{\text{type2}}\}\}$ contains both type1 (**unseen**) and type2.
 
-### Saved-score summaries
+$$
+L_{\text{type1}} = \{\text{v2}{\to}0,\ \text{va}{\to}1,\ \text{c}{\to}2,\ \text{v1}{\to}3\}, \quad
+L_{\text{type2}} = \{\text{c}{\to}0,\ \text{va}{\to}1,\ \text{v2}{\to}2,\ \text{v1}{\to}3\}
+$$
 
-The baseline is its historical 12-epoch endpoint. P10/P15/P50/E4 are the recorded 425-completed-epoch snapshots (epoch index 424, progress counter 25,075). Cross-family protocol differences remain.
+### 2.2 Evaluation Metrics
 
-| Run | Mean SDR, Q | Δ pooled medians, G | Median paired Δ, D | Median paired abs(Δ) | Mean paired abs(Δ) | Mean paired Δ |
-|---|---:|---:|---:|---:|---:|---:|
-| Baseline | 1.326802 | 1.965948 | 0.955149 | 1.346252 | 2.428426 | 2.225927 |
-| P10 | 2.207668 | 0.370914 | 0.495831 | 0.789737 | 1.084389 | 0.668102 |
-| P15 | 2.514978 | 0.035617 | 0.630755 | 0.751140 | 0.826208 | 0.540444 |
-| P50 | 2.261170 | -0.082794 | 0.605020 | 0.680916 | 0.826974 | 0.670765 |
-| E4 | 2.316744 | 0.101539 | 0.419219 | 0.607307 | 0.733515 | 0.444917 |
+- **Combinatorial generalization**: Median SDR on unseen layouts $\text{SDR}_{\text{type1}}$, and the generalization gap $\Delta_{\text{cg}} = \text{SDR}_{\text{type2}} - \text{SDR}_{\text{type1}}$ (smaller is better).
+- **Forward transfer**: Overall mean WaveSDR on the URMP test set $\text{SDR}_{\text{test}}$ (synthetic→real).
 
-P15's pooled-median difference is 0.035617 dB, while its median absolute paired difference is 0.751140 dB. Nearly equal pooled medians therefore do not imply near-zero changes for individual source-part pairs. P50 has a smaller median absolute paired difference (0.680916 dB), while the mean absolute differences for P15/P50 are very close (0.826208/0.826974 dB). These are different descriptive criteria, not evidence of an optimal probability.
+### 2.3 Anti-Shortcut Intervention Mechanisms
 
-P50's negative pooled-median difference (-0.082794 dB) also does not imply that a typical matched target performs better in type1. Its median paired delta is +0.605020 dB, mean paired delta is +0.670765 dB, and 19 of 24 pairs have higher type2 scores.
+| Mechanism | Formula | Acts on | Protocol |
+|---|---|---|---|
+| **Position Swap** | $p \leftarrow \sigma(p)$ w.p. $p_{\text{swap}}$, $\sigma \in S_4$ | input $p$ | warmup_cosine, 1000ep |
+| **Embedding Noise** | $e_p \leftarrow e_p + \sigma_{\text{noise}}\mathcal{N}(0,I)$ | embedding $e_p$ | const LR, 300ep |
+| **Embedding Drop** | $e_p \leftarrow 0$ w.p. $p_{\text{drop}}$ | embedding $e_p$ | const LR, 300ep |
+| **Gate Invariance Reg** | $\mathcal{L} = \ell + \lambda\|\mathbf{W}(p)-\mathbf{W}(\sigma(p))\|^2$ | gate parameters $\mathbf{W}$ | warmup_cosine, 1000ep |
 
-### E4 versus P15
+Note: Swap and Gate Invariance Reg share the position permutation signal $\sigma(p)$, but act at different points — the former perturbs the model input, the latter constrains the sensitivity of gate parameters to position.
 
-At these recorded snapshots, E4 has a smaller median absolute paired layout difference (0.607307 vs. 0.751140 dB) and lower overall mean SDR (2.316744 vs. 2.514978 dB). This is an observed quality/layout-change trade-off. The part-level means below pool both layouts; each part contains six source pairs / 12 correlated scores.
+---
 
-| Part | P15 mean SDR | E4 mean SDR |
-|---|---:|---:|
-| violin1 | 2.618356 | 2.687954 |
-| violin2 | 0.936205 | 0.796811 |
-| viola | 0.955359 | 1.104731 |
-| cello | 5.549990 | 4.677479 |
+## 3. Arguments and Evidence
 
-E4's viola mean is higher (1.104731 vs. 0.955359 dB). This is a supplementary part-level observation. The all-part absolute-difference metric must not be used as a viola-specific stability statistic; the JSON contains separate six-pair summaries for each part.
+### Argument 1: The author-release run has a large unseen-layout gap
 
-### Interpretation boundaries
+**Evidence**: Author-release baseline (author_release_12ep_warmup_cosine) results on the URMP test set:
 
-The 24 pairs are clustered within six source recordings, and methods reuse those recordings. No significance tests, confidence intervals or population-level claims are made. Future inference should account for source-level clustering. For Violin 1 and Viola, the target seat remains fixed while the surrounding source configuration changes. For Violin 2 and Cello, target timbre-position combinations also change. The synthetic-to-recorded-source domain shift is a separate factor.
+| Layout | $\text{SDR}_{\text{type1}}$ | $\text{SDR}_{\text{type2}}$ | $\Delta_{\text{cg}}$ |
+|---|---|---|---|
+| Unseen (type1) | **−0.33** | +1.64 | **+1.97** |
 
-There is no matched `p_swap=0` control. The historical dense baseline differs in data selection, route, sampling and budget, so it cannot isolate the effect of swap. E1cosine-B is excluded from this same-data analysis because its custom-data provenance is unresolved.
+The reported type1 median WaveSDR is below 0 dB. This score alone does not
+identify why the model generalizes poorly or compare it with a zero-output
+baseline.
 
-Attribution of E4's behavior to the regularizer requires a matched `lambda=0` control and control of dropout effects. Independent controller dropout masks can produce a positive penalty even for an identity position permutation. P10/P15/P50 use manual activation-recomputation wrappers that update BatchNorm during backward, whereas E4 does not. A mechanism comparison must align these execution settings; these saved-score statistics alone do not identify a causal position-invariance effect.
+**Control variables and limitations**: This baseline uses `split_stage_paper`: encoder receives $e_t$, middle receives $e_m$, and decoder receives $e_p$. It also uses a 12-work training set, unlike subsequent `mid_dual_paper` experiments with 59 works. The negative type1 value is **consistent with** a shortcut hypothesis but does not establish one; architecture and data scale differ, and a same-architecture, same-data, no-intervention baseline (TruePure) has not been run. The decoder continues to receive audio and skip features.
 
-Recompute or check the deterministic summary with:
+**Safe claim**: Under the author-release configuration, the position-conditioned model exhibits a severe generalization failure on unseen layouts ($\Delta_{\text{cg}} = +1.97$ dB), consistent with the position shortcut hypothesis.
 
-```bash
-python scripts/summarize_layout_pairs.py
-python scripts/summarize_layout_pairs.py --check
-```
+---
 
-## Per-part medians at the reported checkpoints
+### Argument 2: Intervention runs differ on unseen-layout metrics; comparisons have remaining confounds
 
-These pool both layouts for each part. All four part queries share the same mixtures, so their scores are not independent.
+**Evidence**: Under the same training data (59 works, pure type2) and same architecture (mid_dual_paper), comparing three intervention mechanisms at the ep274 checkpoint:
 
-| Run | Violin 1 | Violin 2 | Viola | Cello |
-|---|---:|---:|---:|---:|
-| Dense baseline | 2.336473 | -0.808835 | 0.945001 | 2.238691 |
-| E1cosine-B (custom, provenance unresolved) | 1.702659 | 0.857860 | 0.262077 | 3.098098 |
-| E2 | 1.852161 | -1.487975 | 0.728151 | 1.983418 |
-| E3 | 1.838569 | 0.736922 | 0.728485 | 1.872436 |
-| P10 | 2.505094 | 0.415632 | 0.811299 | 4.603245 |
-| P15 | 2.639378 | 0.948425 | 0.827818 | 5.493811 |
-| P50 | 2.164935 | 0.836940 | 1.034435 | 4.673257 |
-| E4 | 2.497298 | 0.522183 | 1.308691 | 4.411587 |
+| Mechanism | Acts on | LR | test mean | $\text{SDR}_{\text{type1}}$ | $\text{SDR}_{\text{type2}}$ |
+|---|---|---|---|---|---|
+| Swap ($p{=}0.15$, P15) | input $p$ | warmup_cosine | +2.26 | **+1.56** | +1.69 |
+| Drop ($p{=}0.25$, E3) | embedding $e_p$ | const | +1.41 | +0.68 | +1.63 |
+| Noise ($\sigma{=}0.1$, E2) | embedding $e_p$ | const | +1.03 | +0.03 | +1.48 |
 
-## Later final-result files
+**Analysis**: The observed type1 scores differ across these runs. Position swap may reduce the reliability of the training association between the supplied position and target, while Noise/Drop alter the embedding. These results do not by themselves identify which internal signal the model uses or show that it verifies the hint against audio.
 
-The pending release also contained final results from later updates. They are retained separately to avoid mixing checkpoints in one comparison.
+**Control variable limitations**: All three experiments now share the same 59-work training data (removing a previous data-scale confound). Remaining confounds: (a) Swap uses warmup_cosine LR while Noise/Drop use const LR; (b) Noise/Drop train for only 300ep (vs. 1000ep for Swap), so the models have different "expected lifetimes" at ep274; (c) mechanism strengths are not calibrated — swap $p{=}0.15$ is not directly comparable to drop $p{=}0.25$ or noise $\sigma{=}0.1$ in terms of position-information destruction. However, the type1 differences (+1.56 vs +0.03/+0.68, a 0.9~1.5 dB gap) are large enough that LR schedule differences alone are unlikely to fully explain them — **the qualitative trend (input-side intervention outperforms embedding-side) likely holds, but quantitative comparison remains confounded**.
 
-| Final file / run | Mean | type1 median | type2 median |
-|---|---:|---:|---:|
-| [PureDrop_E3_300ep_p025_test_results.json](../results/test_results/PureDrop_E3_300ep_p025_test_results.json) | 1.014746 | 0.342062 | 1.686057 |
-| [PureNoise_E2_300ep_s010_test_results.json](../results/test_results/PureNoise_E2_300ep_s010_test_results.json) | 0.793954 | 0.428687 | 1.236596 |
-| [PureSwap_E4_1000ep_pinv_test_results.json](../results/test_results/PureSwap_E4_1000ep_pinv_test_results.json) | 2.239984 | 1.808942 | 2.132388 |
+---
 
-E3's 1.686057 type2 median belongs to its 300-epoch final result, while the 275-epoch checkpoint yields 1.631006. The earlier report mixed these snapshots. E2/E3 final files correspond to the script's 300-epoch endpoint and E4 to its 1000-epoch endpoint by available run records; these final weights were not among the eight checkpoint files safely inspected in the local audit. No new weight-to-score verification was performed.
+### Argument 3: E1 position-swap dose sweep — P15 performs best on type1 among the final checkpoints
 
-## Data and protocol boundaries
+**Evidence**: The E1 mechanism (position swap) is evaluated as a 4-dose sweep
+$\{0.10, 0.15, 0.25, 0.50\}$ under fixed architecture (mid_dual_paper), LR
+(warmup_cosine), seed (2026), and horizon (1000ep, all complete).
 
-The dense baseline uses historical 60/5 selection metadata, exhaustive crop slabs, a different conditioning route and 52,236 progress updates. P10/P15/P50/E2/E3/E4 use 59 type2 training IDs. E2/E3 have constant learning rate; the cosine variants have a different schedule and horizon. Manual activation recomputation in P10/P15/P50/E2/E3 changes BatchNorm running-stat updates relative to E4. These differences prevent treating the whole table as a matched one-factor ablation.
+**Final results (ep1000, complete training):**
 
-E1cosine-B is an especially important provenance exception. Its safely inspected checkpoint config refers to custom `quartet-data/train` and a custom manifest; its result JSON refers to another server path. The original custom manifests and exact source-audio identity are absent. The script describes oversampling a small custom dataset, but does not establish its actual selected record count. This run is archived as a separate historical observation, not the p=0.25 member of a matched SQR dose sweep.
+| ID | $p_{\text{swap}}$ | $\text{SDR}_{\text{test}}$ | $\text{SDR}_{\text{type1}}$ | $\text{SDR}_{\text{type2}}$ | $\Delta_{\text{cg}}$ |
+|---|---|---|---|---|---|
+| P10 | 0.10 | +1.99 | +1.51 | +2.06 | +0.55 |
+| **P15** | **0.15** | **+2.25** | **+2.17** | +2.20 | **+0.03** |
+| **P25** | **0.25** | **+2.35** | **+1.97** | +1.93 | **−0.05** |
+| P50 | 0.50 | +2.22 | +2.15 | +2.17 | +0.02 |
 
-## Interpretation
+**Mid-training snapshot (ep424, update 25075) for cross-reference (P25 at ep250):**
 
-P15 has the largest observed mean among the main 425-epoch snapshots listed here. This is a descriptive observation on repeatedly inspected recordings, not proof that p=0.15 is optimal or that shortcut learning was causally removed. No untouched test selection, multi-seed uncertainty interval or matched data/control result is available to support those conclusions. E4's independent dropout masks further confound a position-only regularization interpretation.
+| $p_{\text{swap}}$ | $\text{SDR}_{\text{test}}$ | $\text{SDR}_{\text{type1}}$ | $\text{SDR}_{\text{type2}}$ | $\Delta_{\text{cg}}$ |
+|---|---|---|---|---|
+| 0.10 (P10) | +2.21 | +1.75 | +2.12 | +0.37 |
+| **0.15 (P15)** | **+2.51** | **+2.27** | +2.30 | **+0.03** |
+| 0.25 (P25) @ep250 | +2.23 | +1.71 | +1.71 | +0.00 |
+| 0.50 (P50) | +2.26 | +2.00 | +1.91 | −0.09 |
 
-The test grid has six source recordings, two rendered layouts and four queried parts, giving 48 correlated rows per file. They are not 48 independent compositions. The spatialized URMP test set also does not directly validate robustness to unseen simultaneous concert performances. Original SQR data and custom MuseScore data require separate provenance and claims.
+**Analysis**:
 
-Use validation for future checkpoint/hyperparameter decisions. Freeze data and numerical protocol, run multiple seeds, and reserve new independent test material for confirmatory conclusions. See [data provenance](DATA_PROVENANCE.md), [design](E1-4_DESIGN.md) and [known limitations](KNOWN_LIMITATIONS.md).
+1. **Forward transfer (final)**: P25 achieves the highest $\text{SDR}_{\text{test}}=+2.35$, closely followed by P15 (+2.25) and P50 (+2.22). The dose-response is U-shaped: $p{=}0.10$ underperforms, $p{=}0.15$–$0.50$ cluster near each other with P25 slightly ahead.
+2. **Combinatorial generalization (final)**: P15 ($+2.17$) and P50 ($+2.15$) achieve the highest $\text{SDR}_{\text{type1}}$, while P25 is at $+1.97$. All three bring $\Delta_{\text{cg}}$ close to zero ($-0.05$ to $+0.03$). P10's larger $\Delta_{\text{cg}}=+0.55$ is an observed difference; it does not establish a threshold for shortcut removal.
+3. **Dose effect**: In these runs, $p{=}0.10$ has a larger $\Delta_{\text{cg}}$ than P15/P25/P50, whose gaps are near zero. This is an observed dose pattern, not a direct measure of shortcut suppression. P15 has the best type1 generalization, P25 the best overall SDR, and P50 the best type2 among the reported checkpoints.
 
-## Verification
+**Control variables**: All four dose points share the same architecture, data (59-work protocol), LR (warmup_cosine), seed (2026), and evaluation point (final ep1000 for all; ep424/ep250 for mid-training). Main limitation: single seed — 0.1–0.2 dB differences cannot be tested for significance.
 
-Run `python scripts/verify_results.py` from the repository root. It checks all 11 original result files, 528 rows, complete query grids, saved scalar summaries and preserved evidence hashes. Full precision values and row sources are in `results/recomputed_summary.json`; the main table is also available as `results/recomputed_summary.csv`. This command does not perform inference.
+---
+
+### Argument 4: Gate-parameter invariance regularization achieves comparable performance to Swap at equal training steps
+
+**Evidence**: E4 adds an invariance penalty between gate parameters generated under the original and permuted position conditions:
+
+$$
+\mathcal{L}_{\text{E4}} = \ell(f_\theta(x,t,p), y) + \lambda \cdot \frac{1}{n}\sum_{i=1}^{n}\Big[\|\mathbf{W}_i(p) - \mathbf{W}_i(\sigma(p))\|^2 + \|\mathbf{b}_i(p) - \mathbf{b}_i(\sigma(p))\|^2\Big]
+$$
+
+It shares the position permutation signal $\sigma(p)$ with Swap, but Swap injects $\sigma(p)$ into the model input so the loss is computed on mismatched positions, while E4 uses $\sigma(p)$ to compute a **position-invariance constraint** on the gate parameters — the model input still uses the correct $p$.
+
+**Final results (ep1000) and mid-training snapshot (ep424):**
+
+| Mechanism | Eval point | $\text{SDR}_{\text{test}}$ | $\text{SDR}_{\text{type1}}$ | $\text{SDR}_{\text{type2}}$ | $\Delta_{\text{cg}}$ |
+|---|---|---|---|---|---|
+| Swap ($p{=}0.15$, P15) | ep424 | **+2.51** | **+2.27** | +2.30 | +0.03 |
+| Swap ($p{=}0.15$, P15) | ep1000 | +2.25 | +2.17 | +2.20 | +0.03 |
+| Gate Invariance Reg ($\lambda{=}1.0$, E4) | ep424 | +2.32 | +2.09 | +2.19 | +0.10 |
+| Gate Invariance Reg ($\lambda{=}1.0$, E4) | ep1000 | +2.24 | +1.81 | +2.13 | +0.32 |
+
+**Analysis**: At ep424, E4 achieves $\text{SDR}_{\text{test}}=+2.32$ and $\Delta_{\text{cg}}=+0.10$, within 0.19 dB of P15. At ep1000, both P15 and E4 converge to $\text{SDR}_{\text{test}}\approx+2.25$, though E4's $\Delta_{\text{cg}}$ widens to $+0.32$ (type1 drops to +1.81 while type2 holds at +2.13), suggesting E4's generalization recovery is less stable than swap's over long training.
+
+**Control variables**: E4 and P15 are fully aligned on architecture, data, LR, and evaluation epoch — only the mechanism differs. Limitations: (a) both share the $\sigma(p)$ signal and are not fully independent anti-shortcut paths; (b) E4 tests only a single strength $\lambda=1.0$ with no dose sweep; (c) single seed.
+
+**Safe claim**: E4 and Swap achieve similar forward-transfer SDR at the listed checkpoints, while E4's unseen-layout gap is wider at ep1000. This supports a performance comparison between the two interventions, but does not establish that a shortcut lives in the gates or that either intervention removed one.
+
+---
+
+## 4. Data Ablation: Segmented Dataset (E1cosine-B1)
+
+`E1cosine-B1` (`PureSwap_E1cosine-B1_1000ep`) is a p_swap=0.25 position-swap
+run on a **segmented dataset**: 12 StringQuD movements split into 5
+equal-length segments each, yielding 60 training records (no oversampling).
+Unlike the main E1 dose sweep (P10/P15/P25/P50, all on 59 distinct works),
+E1B1 has far less musical diversity. Architecture, LR, horizon, and seed
+are identical to the P-series.
+
+| Experiment | Data | $p_{\text{swap}}$ | $\text{SDR}_{\text{test}}$ | $\text{SDR}_{\text{type1}}$ | $\text{SDR}_{\text{type2}}$ | $\Delta_{\text{cg}}$ |
+|---|---|---|---|---|---|---|
+| E1cosine-B1 | 60 segments (12 works × 5) | 0.25 | +1.61 | +1.25 | +1.43 | +0.17 |
+| P25 (for reference) | 59 works | 0.25 | **+2.35** | **+1.97** | +1.93 | −0.05 |
+
+E1B1's test mean (+1.61) is 0.74 dB below P25 (+2.35) despite the same
+swap dose, confirming that **work-level diversity (59 distinct movements)
+is more effective than segment-level diversity (60 crops from 12
+movements)**. This result is also consistent with E1B1's 12 source works
+possibly overlapping the 59-work train set, and is a single-seed run.
+
+---
+
+## 5. Summary
+
+| Argument | Core finding | Evidence strength | Main limitation |
+|---|---|---|---|---|
+| 1. Author-release layout gap | No-intervention baseline type1 = −0.33, $\Delta_{\text{cg}}=+1.97$ | Suggestive | Architecture/data differ from later experiments; no TruePure baseline or direct audio-dependence measurement |
+| 2. Intervention comparison | Swap type1 +1.56 vs Noise/Drop +0.03~+0.68 | Descriptive only | LR schedule confound (cosine vs const), strengths uncalibrated |
+| 3. E1 dose sweep | P25/P15/P50 all near-zero $\Delta_{\text{cg}}$; P25 highest SDR (+2.35), P15 best type1 (+2.17), P50 matched | **Most solid** | Single seed; differences ≤0.1 dB between top three, may be within noise |
+| 4. E4 vs E1 | E4 comparable in $\text{SDR}_{\text{test}}$ (+2.24) at ep1000, but $\Delta_{\text{cg}}$ wider (+0.32 vs −0.05 to +0.03 for E1) | Moderate | Shared $\sigma(p)$ signal, single $\lambda$, E4 combinatorial generalization less stable |
+| 5. Data ablation (E1B1) | 60 segments (12 works) underperform 59-work P25 by 0.74 dB | Moderate | Single seed, possible work overlap |
+
+**Core conclusion**: Within this model and protocol, P15/P25/P50 have near-zero $\Delta_{\text{cg}}$ and reported $\text{SDR}_{\text{test}}$ from +2.22 to +2.35. E4 reaches +2.24 overall SDR but has a wider $\Delta_{\text{cg}}=+0.32$ at ep1000. These are empirical comparisons of the evaluated runs. They do not prove that a position shortcut is the bottleneck or that the interventions suppress one. P15 has the best type1 result (+2.17), and P25 the highest overall SDR (+2.35). The E1B1 data-ablation run (60 segments from 12 works) scores 0.74 dB below P25; this single comparison motivates further study of work-level diversity but does not establish a general rule.
+
+---
+
+## 6. Data Provenance
+
+| Experiment | Result file | Eval point | Notes |
+|---|---|---|---|
+| author_release_12ep_warmup_cosine | `results/test_results/author_release_12ep_warmup_cosine_test_results.json` | final | split_stage_paper, 12 works |
+| P15 (for Arg. 2) | `results/checkpoint_evals/P15_test_ep274.json` | ep274 | mid_dual_paper, 59 works, cosine |
+| E2 PureNoise | `results/checkpoint_evals/E2_test_ep274.json` | ep274 | const LR, 300ep |
+| E3 PureDrop | `results/checkpoint_evals/E3_test_ep274.json` | ep274 | const LR, 300ep |
+| P10 (ep424) | `results/checkpoint_evals/P10_test_ep424.json` | ep424 | E1 dose, cosine, 59 works |
+| P15 (ep424) | `results/checkpoint_evals/P15_test_ep424.json` | ep424 | E1 dose, cosine, 59 works |
+| P25 (ep250) | `results/test_results/PureSwap_E1cosine-P25_1000ep_p025_test_results.json` | ep1000 | E1 dose p=0.25, cosine, 59 works |
+| P50 (ep424) | `results/checkpoint_evals/P50_test_ep424.json` | ep424 | E1 dose, cosine, 59 works |
+| E4 (ep424) | `results/checkpoint_evals/E4_test_ep424.json` | ep424 | gate invariance, cosine, 59 works |
+| P10 (final) | `results/test_results/PureSwap_E1cosine-P10_1000ep_p010_test_results.json` | ep1000 | E1 dose, cosine, 59 works |
+| P15 (final) | `results/test_results/PureSwap_E1cosine-P15_1000ep_p015_test_results.json` | ep1000 | E1 dose, cosine, 59 works |
+| P25 (final) | `results/test_results/PureSwap_E1cosine-P25_1000ep_p025_test_results.json` | ep1000 | E1 dose p=0.25, cosine, 59 works |
+| P50 (final) | `results/test_results/PureSwap_E1cosine-P50_1000ep_p050_test_results.json` | ep1000 | E1 dose, cosine, 59 works |
+| E4 (final) | `results/test_results/PureSwap_E4_1000ep_pinv_test_results.json` | ep1000 | gate invariance, cosine, 59 works |
+| E1cosine-B1 (data ablation) | `results/test_results/PureSwap_E1cosine-B1_1000ep_p025_test_results.json` | ep1000 | swap p=0.25, 60 segments (12 works), cosine |

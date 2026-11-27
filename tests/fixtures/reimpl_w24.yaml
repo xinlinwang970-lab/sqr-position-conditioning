@@ -72,10 +72,11 @@ training:
   compile: false
 inference:
   batch_size: 1
+  evaluation_protocol: legacy_v1
   overlap_ratio_requested: 0.5
-  align_stride_to_stft_hop: true
-  blend_window: hann_positive_floor
-  blend_weight_floor: 1.0e-4
+  align_stride_to_stft_hop: false
+  blend_window: hann
+  blend_weight_floor: 1.0e-8
   keep_original_length: true
   save_subtype: FLOAT
 profiling:

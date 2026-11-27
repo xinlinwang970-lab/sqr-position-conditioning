@@ -1,13 +1,32 @@
 # Changelog
 
-## 0.1.1 — 2026-11-19, release preparation
+## 2026-11-27
 
-Prepared a portable research-code package from the pending release. Added path options, fail-fast input checks, effective launch metadata, a frozen-selection manifest rebuilder, an unnormalized dense-cache builder and saved-result verification. Restored core tests and retained original score files, available logs and checkpoint hash metadata.
+### Experiment matrix complete
 
-Rewrote reports to separate the main SQR selection, historical baseline selection and unresolved E1cosine-B custom dataset. Corrected metric naming, epoch labels and mixed E3 snapshots. Documented activation recomputation/BatchNorm, E4 dropout, overlap-add and RNG limitations. Removed unsupported causal/generalization claims and fake repository URL metadata.
+- All 31 experiments completed
+- 3 new const-LR swap experiments added (#28-30), confirming swap effect under paper-strict protocol
+- g24 B/MDP/const/swap0.15 achieves test type1 = +1.76 (best paper-strict result)
+- Swap effect confirmed not dependent on warmup_cosine LR scheduling
+- README updated with complete 2×2×2 matrix and const-LR verification
 
-Historical model-core and training helper mathematics were not changed. This version does not contain newly trained models or newly inferred benchmark scores.
+## 2026-11-26
 
-## 0.1.0 — pending release snapshot
+### Initial release
 
-Original 99-file code/document/result package, associated with commit `0f6f63c587672f68086c6a1a1dff3d018d81d179`. The original remains outside this prepared copy.
+- Complete experiment matrix: 28+ controlled experiments
+- g24 architecture × route × LR 3×2×2 matrix (12 experiments)
+- dense124 route × LR 2×2 matrix (4 experiments, historical baseline)
+- Intervention sweep: swap p∈{0.10,0.15,0.25,0.50} + noise + drop + gate-invar (7 experiments)
+- Swap × route × architecture 2×2×2 matrix (7 of 8 complete + 3 const-LR verification)
+- Baselines: author_release 12ep, pos_aug POC (2 experiments)
+- Comprehensive README with synthetic-to-real gap analysis
+- Reproducibility guide, environment specification, and audit trail
+
+### Key findings
+
+- Synthetic-to-real gap: 5+ dB median, with type1 val-test Spearman ρ = +0.12
+- Only g24 B/MDP achieves positive test type1 without intervention (+1.29 to +1.63)
+- Position-swap p=0.15 is the most effective anti-shortcut intervention (+2.30 dB on dense124)
+- Swap effect confirmed on g24 architecture and under constant LR (paper-strict protocol)
+- Route × architecture interaction: MDP helps g24B but hurts g24C

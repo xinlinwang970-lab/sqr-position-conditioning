@@ -1,40 +1,59 @@
 #!/usr/bin/env python3
-"""Historical train_PureSwap_E4_1000ep: SQR 59-record type2 protocol.
+"""E4: PureSwap with position-invariance regularization on GPoCM decoder gates.
 
-Portable setup only; see docs/KNOWN_LIMITATIONS.md before interpreting results.
+Mechanism: output-side constraint — penalizes the GPoCM gate parameters
+for depending on position_id. Forces the model to produce position-INVARIANT
+gates, which in turn forces source separation to rely on audio content rather
+than the position shortcut.
+
+Unlike E1 (input-side swap corruption), E4 never lies about position during
+training. Instead it adds an explicit regularization term:
+    reg = λ·Σ_i ( ||W(t,p)_i − W(t,p')_i||² + ||b(t,p)_i − b(t,p')_i||² )
+
+This directly targets the GPoCM controller — the same MLP that E1's swap
+gradients pushed through indirectly. If E4 works, it proves the mechanism
+is "prevent GPoCM from memorizing position→routing lookup tables", regardless
+of whether the prevention comes from input noise (E1) or output penalty (E4).
+
+Concretely:
+  - train manifest: 59 type2 (sqr_paper_split_train.jsonl, NO type1 contamination)
+  - model: mid_dual_paper route (encoder bypass GPoCM; e_m feeds decoder only)
+  - optimizer: Adam with warmup_cosine LR (500 upd warmup → cosine 5e-4→5e-6)
+  - dropout 0.1, batch 4, 59 upd/ep
+  - val: 6-paper-works split (type1 + type2), eval every 25 ep
+  - test: URMP 6 works, FINAL-ONLY at end
+  - auto-resume: picks up from latest checkpoint_<step>.pt in run_root
 """
 
 import sys
-from pathlib import Path
-
-REPO_ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(REPO_ROOT / "src"))
+sys.path.insert(0, "/mnt/sda/MSS/sqr-position-repro/src")
 
 import json
 import math
 import random
 import time
-from collections import defaultdict
 from pathlib import Path
 
 import numpy as np
-import soundfile as sf
 import torch
 from torch.utils.data import DataLoader
 
 from sqr_repro.config import load_config
-from sqr_repro.release_paths import prepare_training, validate_inputs, write_launch_record
 from sqr_repro.paper_c0.dataset import PARTS, PaperC0WavDataset
 from sqr_repro.paper_c0.model_factory import build_model
 from sqr_repro.audio import AudioConfig, AudioTransform
+from sqr_repro.evaluation import (
+    evaluate_full_length_legacy_v1 as evaluate_full_length,
+    summarize_wavesdr as summarize,
+)
 from sqr_repro.models.separator import Separator
 from sqr_repro.losses import packed_complex_mse
 
 
-CONFIG_PATH = REPO_ROOT / "configs/PureSwap_E4_1000ep.yaml"
-TRAIN_MANIFEST = REPO_ROOT / "manifests/sqr_paper_split_train.jsonl"
-VAL_MANIFEST = REPO_ROOT / "manifests/sqr_paper_split_val.jsonl"
-TEST_MANIFEST = REPO_ROOT / "manifests/sqr_paper_split_test.jsonl"
+CONFIG_PATH = "/mnt/sda/MSS/sqr-position-repro/configs/PureSwap_E4_1000ep.yaml"
+TRAIN_MANIFEST = "/mnt/sda/MSS/data/manifests/sqr_paper_split_train.jsonl"
+VAL_MANIFEST = "/mnt/sda/MSS/data/manifests/sqr_paper_split_val.jsonl"
+TEST_MANIFEST = "/mnt/sda/MSS/data/manifests/sqr_paper_split_test.jsonl"
 
 BATCH_SIZE = 4
 TARGET_EPOCHS = 1000
@@ -45,95 +64,14 @@ WARMUP_UPDATES = 500
 FINAL_LR = 5e-6
 LAMBDA_REG = 1.0
 
-PART_TO_TIMBRE = {"violin1": 0, "violin2": 0, "viola": 1, "cello": 2}
 
 
-def compute_sdr(estimate, reference):
-    ref_energy = torch.sum(reference ** 2)
-    err = estimate - reference
-    return 10 * torch.log10(ref_energy / (torch.sum(err ** 2) + 1e-8))
 
 
-def inference_full_length(model, mixture, transform, timbre_id, position_id,
-                          device, num_frames, hop_length, overlap_ratio=0.5):
-    C, T = mixture.shape
-    seg_samples = (num_frames - 1) * hop_length
-    hop_samples = int(seg_samples * (1 - overlap_ratio))
-    if T < seg_samples:
-        mixture = torch.nn.functional.pad(mixture, (0, seg_samples - T))
-        T = mixture.shape[-1]
-    output = torch.zeros(C, T, dtype=torch.float32)
-    weight = torch.zeros(T, dtype=torch.float32)
-    window = torch.hann_window(seg_samples, periodic=True)
-    starts = list(range(0, max(T - seg_samples + 1, 1), hop_samples))
-    if not starts or starts[-1] + seg_samples < T:
-        starts.append(max(T - seg_samples, 0))
-    for start in starts:
-        end = min(start + seg_samples, T)
-        chunk = mixture[:, start:end]
-        if chunk.shape[-1] < seg_samples:
-            chunk = torch.nn.functional.pad(chunk, (0, seg_samples - chunk.shape[-1]))
-        spec = transform.stft(chunk.unsqueeze(0).to(device))
-        t_stft = spec.shape[2]
-        pad_f = (8 - t_stft % 8) % 8
-        if pad_f:
-            spec = torch.nn.functional.pad(spec, (0, 0, 0, pad_f))
-        t = torch.tensor([timbre_id], dtype=torch.long, device=device)
-        p = torch.tensor([position_id], dtype=torch.long, device=device)
-        with torch.no_grad():
-            out = model(spec, t, p)
-        wave = transform.istft(out, length=seg_samples)[0].cpu()
-        w = window[:end - start]
-        output[:, start:end] += wave[:, :end - start] * w
-        weight[start:end] += w
-    return (output / torch.clamp(weight, min=1e-8))[:, :T]
 
 
-def evaluate_full_length(model, manifest_path, data_root, device, config):
-    records = [json.loads(l) for l in open(manifest_path)]
-    transform = AudioTransform(AudioConfig.from_dict(config["audio"]))
-    num_frames = config["audio"]["num_frames"]
-    hop_length = config["audio"]["hop_length"]
-    results = []
-    model.eval()
-    for record in records:
-        mix, _ = sf.read(str(Path(data_root) / record["mixture"]),
-                         dtype="float32", always_2d=True)
-        mixture = torch.from_numpy(mix.T.copy())
-        for part_id in PARTS:
-            estimate = inference_full_length(
-                model, mixture, transform,
-                PART_TO_TIMBRE[part_id], record["position_ids"][part_id],
-                device, num_frames, hop_length,
-            )
-            ref, _ = sf.read(str(Path(data_root) / record["stems"][part_id]),
-                             dtype="float32", always_2d=True)
-            reference = torch.from_numpy(ref.T.copy())
-            min_len = min(estimate.shape[-1], reference.shape[-1])
-            sdr = compute_sdr(estimate[..., :min_len], reference[..., :min_len]).item()
-            results.append({
-                "item_id": record["item_id"],
-                "composition_id": record["composition_id"],
-                "part_id": part_id,
-                "layout_id": record["layout_id"],
-                "sdr": sdr,
-            })
-    model.train()
-    return results
 
 
-def summarize(results):
-    sdrs = [r["sdr"] for r in results]
-    by_layout = defaultdict(list)
-    for r in results:
-        by_layout[r["layout_id"]].append(r["sdr"])
-    return {
-        "mean_sdr": float(np.mean(sdrs)),
-        "median_sdr": float(np.median(sdrs)),
-        "type1_median": float(np.median(by_layout.get("type1", [float("nan")]))),
-        "type2_median": float(np.median(by_layout.get("type2", [float("nan")]))),
-        "n": len(sdrs),
-    }
 
 
 def build_epoch_loader(config, crop_samples, epoch):
@@ -167,20 +105,10 @@ def compute_position_invariance_reg(model, timbre, position):
 
 
 def main():
-    global TRAIN_MANIFEST, VAL_MANIFEST, TEST_MANIFEST
-    config, launch = prepare_training(REPO_ROOT / "configs/PureSwap_E4_1000ep.yaml",
-                                      repo_root=REPO_ROOT, baseline=False, custom=False)
-    validate_inputs(config, launch, expected_train_records=59, baseline=False)
-    if launch.check_only:
-        return
-    if config["training"]["batch_size"] != BATCH_SIZE or config["experiment"]["seed"] != SEED:
-        raise ValueError("Historical entrypoint uses fixed batch size and seed; see script constants")
-    write_launch_record(config, launch, script=__file__, runtime_checkpointing=False,
-                        batch_size=BATCH_SIZE, seed=SEED, target_epochs=TARGET_EPOCHS)
-    TRAIN_MANIFEST, VAL_MANIFEST, TEST_MANIFEST = launch.train_manifest, launch.val_manifest, launch.test_manifest
     if torch.cuda.is_available():
         torch.cuda.set_per_process_memory_fraction(GPU_MEM_FRACTION, 0)
 
+    config = load_config(CONFIG_PATH)
     crop_samples = (config["audio"]["num_frames"] - 1) * config["audio"]["hop_length"]
     run_dir = Path(config["paths"]["run_root"])
     run_dir.mkdir(parents=True, exist_ok=True)
@@ -251,7 +179,7 @@ def main():
         last = ckpts[-1]
         print(f"[resume] found {len(ckpts)} checkpoints in {run_dir}, "
               f"loading latest: {last.name}", flush=True)
-        ckpt = torch.load(last, map_location=device, weights_only=True)
+        ckpt = torch.load(last, map_location=device)
         model.load_state_dict(ckpt["model_state_dict"])
         optimizer.load_state_dict(ckpt["optimizer_state_dict"])
         completed = int(ckpt["completed_updates"])
@@ -318,7 +246,7 @@ def main():
                     "epoch": epoch,
                 }, ckpt_path)
                 print(f"  -> Checkpoint: {ckpt_path}", flush=True)
-                val_results = evaluate_full_length(model, VAL_MANIFEST, launch.val_data_root, device, config)
+                val_results = evaluate_full_length(model, VAL_MANIFEST, data_root, device, config)
                 val_log = {"update": completed, "epoch": epoch, **summarize(val_results)}
                 val_history.append(val_log)
                 print(f"  -> VAL @ ep{epoch}: mean={val_log['mean_sdr']:+.2f} "
@@ -340,7 +268,7 @@ def main():
     }, final_ckpt)
     print(f"\nFinal checkpoint: {final_ckpt}", flush=True)
 
-    test_results = evaluate_full_length(model, TEST_MANIFEST, launch.test_data_root, device, config)
+    test_results = evaluate_full_length(model, TEST_MANIFEST, data_root, device, config)
     test_log = summarize(test_results)
     print(f"\nTEST @ final: mean={test_log['mean_sdr']:+.2f} median={test_log['median_sdr']:+.2f}")
     print(f"  type1 median: {test_log['type1_median']:+.2f}")

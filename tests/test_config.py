@@ -34,3 +34,27 @@ def test_batchnorm_training_batch_one_is_rejected():
     path.write_text(yaml.safe_dump(config), encoding="utf-8")
     with pytest.raises(ConfigError, match="BatchNorm1d"):
         load_config(path)
+
+
+def test_all_checked_in_configs_declare_exact_legacy_v1_evaluation():
+    paths = sorted((ROOT / "configs").glob("*.yaml")) + sorted(FIXTURES.glob("*.yaml"))
+    assert paths
+    for path in paths:
+        inference = load_config(path)["inference"]
+        assert inference["evaluation_protocol"] == "legacy_v1", path
+        assert inference["overlap_ratio_requested"] == 0.5, path
+        assert inference["align_stride_to_stft_hop"] is False, path
+        assert inference["blend_window"] == "hann", path
+        assert inference["blend_weight_floor"] == 1.0e-8, path
+        assert inference["keep_original_length"] is True, path
+
+
+def test_legacy_v1_rejects_nonhistorical_inference_settings(tmp_path):
+    config = yaml.safe_load(
+        (FIXTURES / "debug_cpu.yaml").read_text(encoding="utf-8")
+    )
+    config["inference"]["align_stride_to_stft_hop"] = True
+    path = tmp_path / "bad_legacy_inference.yaml"
+    path.write_text(yaml.safe_dump(config), encoding="utf-8")
+    with pytest.raises(ConfigError, match="legacy_v1"):
+        load_config(path)

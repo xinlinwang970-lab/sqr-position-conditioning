@@ -20,7 +20,7 @@ PAPER_REQUIREMENTS = {
     "num_timbres": 3,
     "num_positions": 4,
     "embedding_dim": 32,
-    "condition_route": "split_stage",
+    "condition_route": "split_stage_paper",
     "modulation": "gpocm",
     "output_mode": "complex_mapping",
 }
@@ -31,6 +31,26 @@ PAPER_REQUIREMENTS = {
 ARCHITECTURE_REGISTRY = {
     "c0_w24_candidate_v1": {
         "architecture_version": "c0_w24_candidate_v1",
+        "implementation": "sqr_repro.models.separator:Separator",
+        "paper_allowed": False,
+    },
+    "paper_route_w24_v1": {
+        "architecture_version": "paper_route_w24_v1",
+        "implementation": "sqr_repro.models.separator:Separator",
+        "paper_allowed": False,
+    },
+    "growth24_projected_a_v1": {
+        "architecture_version": "growth24_projected_a_v1",
+        "implementation": "sqr_repro.models.separator:Separator",
+        "paper_allowed": False,
+    },
+    "growth24_projected_b_v1": {
+        "architecture_version": "growth24_projected_b_v1",
+        "implementation": "sqr_repro.models.separator:Separator",
+        "paper_allowed": False,
+    },
+    "growth24_projected_c_v1": {
+        "architecture_version": "growth24_projected_c_v1",
         "implementation": "sqr_repro.models.separator:Separator",
         "paper_allowed": False,
     },

@@ -1,0 +1,93 @@
+schema_version: 1
+experiment:
+  name: paper_route_w24_v1
+  status: architecture_candidate_not_paper_verified
+  seed: 2026
+  test_only: true
+  run_mode: synthetic_smoke
+  architecture_status: CANDIDATE
+paths:
+  run_root: runs/paper_route_w24_v1
+data:
+  root: null
+  manifest: null
+  target_sampling: balanced_pairs
+  pair_cycle:
+    - [violin1, viola]
+    - [violin2, cello]
+    - [violin1, cello]
+    - [violin2, viola]
+  augmentation: none
+  num_workers: 0
+  pin_memory: false
+  drop_last: true
+audio:
+  sample_rate: 44100
+  channels: 2
+  n_fft: 2048
+  win_length: 2048
+  hop_length: 1024
+  num_frames: 128
+  center: true
+  pad_mode: reflect
+  window: hann
+  window_periodic: true
+  normalized: false
+  pack_order: [real_left, real_right, imag_left, imag_right]
+  stft_dtype: float32
+model:
+  n_blocks: 7
+  base_channels: 24
+  tfc_growth_rate: 24
+  internal_channels: 24
+  tfc_layers: 5
+  kernel_size: [3, 3]
+  tdf_bottleneck_factor: 16
+  tdf_min_units: 16
+  tdf_bias: false
+  num_timbres: 3
+  num_positions: 4
+  condition_route: split_stage_paper
+  embedding_dim: 32
+  control_hidden_dims: [64, 128, 256]
+  control_dropout: 0.1
+  control_hidden_norm: layer_norm
+  control_output_norm: none
+  modulation: gpocm
+  modulation_position: after_tfc_before_tdf
+  output_mode: complex_mapping
+  activation_checkpointing: false
+  architecture_version: paper_route_w24_v1
+training:
+  batch_size: 2
+  gradient_accumulation_steps: 1
+  precision: fp32
+  loss: packed_complex_mse
+  optimizer: adam
+  learning_rate: 0.0005
+  adam_betas: [0.9, 0.999]
+  adam_eps: 1.0e-8
+  weight_decay: 0.0
+  foreach: false
+  gradient_clip_norm: null
+  scheduler: none
+  max_attempted_updates: 1
+  validate_every_updates: 0
+  checkpoint_every_updates: 1
+  monitor: none
+  monitor_mode: min
+  compile: false
+inference:
+  batch_size: 1
+  evaluation_protocol: legacy_v1
+  overlap_ratio_requested: 0.5
+  align_stride_to_stft_hop: false
+  blend_window: hann
+  blend_weight_floor: 1.0e-8
+  keep_original_length: true
+  save_subtype: FLOAT
+profiling:
+  warmup_updates: 0
+  measured_updates: 1
+  reserved_memory_budget_gib: 6
+  budget_is_advisory: true

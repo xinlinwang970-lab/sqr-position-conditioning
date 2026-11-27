@@ -79,7 +79,7 @@ There is no composition overlap between these splits. The project follows the ch
 This project evaluates the reconstructed full-length waveform with the following scale-dependent energy ratio:
 
 ```math
-\operatorname{WaveSDR}(x, \hat{x})
+\mathrm{WaveSDR}(x, \hat{x})
 =10\log_{10}\left(
 \frac{\sum_n x_n^2}
 {\sum_n(\hat{x}_n-x_n)^2+10^{-8}}
@@ -188,10 +188,10 @@ For feature map $D^i$ at stage $i$, the implemented gate follows the published f
 
 ```math
 \begin{aligned}
-\operatorname{PoCM}(D^i_c)
+\mathrm{PoCM}(D^i_c)
 &=\sum_j \omega^i_{cj}D^i_j+\beta^i_c, \\
-\operatorname{GPoCM}(D^i_c)
-&=\sigma\!\left(\operatorname{PoCM}(D^i_c)\right)\odot D^i_c.
+\mathrm{GPoCM}(D^i_c)
+&=\sigma\!\left(\mathrm{PoCM}(D^i_c)\right)\odot D^i_c.
 \end{aligned}
 ```
 

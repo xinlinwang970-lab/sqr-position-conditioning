@@ -241,7 +241,7 @@ For feature map $D^i$ at stage $i$, the implemented gate follows the published f
 Symbols and operators in the equations:
 
 - $i$ indexes the network stage, $c$ indexes the channel being gated, and $j$ indexes the input channels included in the sum. Time-frequency coordinates are omitted for readability.
-- $D^i_j$ is input channel $j$ of the stage-$i$ feature map, while $D^i_c$ is channel $c$, which is modulated by the resulting gate.
+- $D^i_j$ is input channel $j$ of the feature map at stage $i$, while $D^i_c$ is channel $c$, which is modulated by the resulting gate.
 - $\omega^i_{cj}$ is the condition-generated mixing coefficient from channel $j$ to channel $c$; $\beta^i_c$ is the corresponding condition-generated bias.
 - $\sum_j$ sums the channel contributions. $\mathrm{PoCM}$ denotes Point-wise Convolutional Modulation: the channel-wise affine combination can be viewed as a point-wise ($1\times1$) convolution.
 - $\sigma$ is the logistic sigmoid, and $\odot$ is element-wise multiplication. $\mathrm{GPoCM}$ denotes Gated PoCM, obtained by multiplying the sigmoid gate by $D^i_c$.

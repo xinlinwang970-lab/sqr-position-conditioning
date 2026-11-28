@@ -1,27 +1,29 @@
 # From Synthetic to Real
 
-## A Music Source Separation (MSS) Study of Positional Cues and Unseen Layouts
+## A String-Quartet MSS Study of Positional Shortcuts under Synthetic-to-Real and Unseen-Layout Shifts
 
 This repository studies one question:
 
-> When a quartet separator is trained on synthetic performances in one seating arrangement, what transfers to real performances—and what fails when the seating combination changes?
+> When positional conditioning is learned from a single synthetic seating arrangement, does it capture transferable spatial evidence—or exploit a brittle part–seat shortcut?
+
+The original work establishes the value of combining timbral and positional cues to separate same-timbre instruments. This study shifts the question from whether position helps to whether it remains reliable under a compound synthetic-to-real and seen-to-unseen-layout shift.
 
 The project begins with the public architectural clues in Xu et al., [*Position also matters! Separating Same Instruments in String Quartet using Timbral and Positional Cues*](https://www.isca-archive.org/interspeech_2025/xu25b_interspeech.pdf), reconstructs a family of plausible 7-block conditional U-Nets, and then uses two completed experiment matrices to study the compound **synthetic-to-real + seen-to-unseen-seating** shift.
 
-The main empirical pattern is simple but important:
+Relative to the original study, this repository contributes:
 
-- On real URMP performances, the g24 base matrix is comparatively stable on the training-seen `type2` layout but unstable on the unseen `type1` layout.
-- A historical dense124 architecture makes the same failure especially visible and therefore serves as an intervention-screening platform—not as a faithful reconstruction of the paper.
-- Position-condition corruption, especially position swap, produces the strongest observed improvements in `type1` WaveSDR across both architecture families and both conditioning routes tested.
-- These are exploratory, single-seed findings. They support a generalization hypothesis; they do not establish a causal mechanism or a statistically confirmed state of the art.
+- a controlled stress test that distinguishes real-domain transfer on the training-seen `type2` layout from transfer on the unseen `type1` layout;
+- evidence consistent with a brittle part–seat shortcut: `type2` remains comparatively stable while `type1` is highly sensitive to architecture and conditioning route;
+- a targeted mitigation based on position-condition corruption, with position swap producing a positive real-test `type1` change in all six paired comparisons;
+- explicit claim boundaries: these single-seed results diagnose and mitigate shortcut-like behavior, but do not prove an internal causal mechanism or a statistically confirmed state of the art.
 
 ## Contents
 
 1. [Research direction: synthetic to real](#1-research-direction-synthetic-to-real)
 2. [Paper-constrained reconstruction of the 7-block model](#2-paper-constrained-reconstruction-of-the-7-block-model)
-3. [Phase I: g24 reconstruction and generalization diagnosis](#3-phase-i-g24-reconstruction-and-generalization-diagnosis)
-4. [Phase II: dense124 intervention screening](#4-phase-ii-dense124-intervention-screening)
-5. [Phase III: cross-family transfer and observed improvements](#5-phase-iii-cross-family-transfer-and-observed-improvements)
+3. [Phase I: g24 reconstruction and positional-shortcut diagnosis](#3-phase-i-g24-reconstruction-and-positional-shortcut-diagnosis)
+4. [Phase II: Core intervention for positional-shortcut mitigation](#4-phase-ii-core-intervention-for-positional-shortcut-mitigation)
+5. [Phase III: Cross-family validation of shortcut mitigation](#5-phase-iii-cross-family-validation-of-shortcut-mitigation)
 6. [Two priorities for future work](#6-two-priorities-for-future-work)
 7. [Scope, limitations, and artifact map](#7-scope-limitations-and-artifact-map)
 
@@ -51,7 +53,7 @@ Training uses only `type2`. Therefore:
 - real-domain `type2` tests **synthetic-to-real transfer with a seen seating combination**;
 - real-domain `type1` adds an **unseen seating combination** to the same domain transfer.
 
-This makes the `type2`/`type1` contrast a compact probe of combinatorial generalization under domain shift. It is not a clean causal decomposition—the audio content also changes between the synthetic and real sets—but it is more informative than one aggregate separation score.
+In this report, a **positional shortcut** means reliance on the fixed training correlation between part identity and seating position rather than on transferable spatial evidence. The `type1`/`type2` contrast and the response to position-condition corruption together diagnose shortcut-like behavior; they do not directly reveal the model's internal causal mechanism. Because the audio content also changes between the synthetic and real sets, the contrast is not a clean causal decomposition, but it remains more informative than one aggregate separation score.
 
 ### 1.2 What “synthetic to real” means here
 
@@ -241,13 +243,13 @@ All result-bearing runs reported in Sections 3–5 use the following training pr
 
 See [`REPRODUCIBILITY.md`](REPRODUCIBILITY.md) for the complete execution and evaluation protocol and [`ENVIRONMENT.md`](ENVIRONMENT.md) for the recorded software stack.
 
-The experimental narrative that follows is deliberately sequential: Phase I reconstructs and diagnoses, Phase II screens possible remedies, and Phase III tests whether the selected improvements transfer beyond the screening setup.
+The experimental narrative that follows is deliberately sequential: Phase I reconstructs and diagnoses a shortcut-like failure, Phase II screens targeted mitigations, and Phase III tests whether the selected intervention transfers beyond the screening setup.
 
 ---
 
-## 3. Phase I: g24 reconstruction and generalization diagnosis
+## 3. Phase I: g24 reconstruction and positional-shortcut diagnosis
 
-This phase is the paper-constrained reconstruction stage. The g24 family preserves the published growth rate and rounded parameter-count clue while treating unpublished architectural choices as explicit candidates. Its purpose is to determine what can be reconstructed from the public evidence and then identify the generalization failure that appears when models trained on synthetic `type2` are evaluated on real `type1`.
+This phase is the paper-constrained reconstruction stage. The g24 family preserves the published growth rate and rounded parameter-count clue while treating unpublished architectural choices as explicit candidates. Its purpose is to determine what can be reconstructed from the public evidence and then diagnose the shortcut-like failure that appears when models trained on synthetic `type2` are evaluated on real `type1`.
 
 ### 3.1 Three growth-24 candidates
 
@@ -293,7 +295,7 @@ Because training sees synthetic `type2` only, these results separate two empiric
 1. **Synthetic → real, seen combination (`type2`)**: transfer is imperfect but comparatively stable.
 2. **Synthetic → real, unseen combination (`type1`)**: the additional compositional shift is fragile and route dependent.
 
-This is the central problem that motivates the dense124 intervention screen.
+This shortcut-like pattern is the central problem that motivates the Phase II mitigation screen.
 
 #### Validation curves: type1 fragility vs type2 stability
 
@@ -305,9 +307,9 @@ At epoch 999, validation `type1` is +5.59 dB for B but only +1.68 and +1.55 dB f
 
 ---
 
-## 4. Phase II: dense124 intervention screening
+## 4. Phase II: Core intervention for positional-shortcut mitigation
 
-This phase turns from reconstruction to solution search. Dense124 is not presented as a faithful version of the paper; its larger baseline `type2`/`type1` discrepancy makes it a high-contrast platform for screening position noise, drop, swap, and gate-invariance interventions before testing them more broadly.
+This is the core intervention phase. Dense124 serves as a high-contrast screening platform, but the contribution is not the architecture itself: it is the targeted test of whether weakening the fixed part–seat association can improve unseen-layout transfer. Position noise, drop, swap, and gate-invariance interventions are screened here before the selected idea is tested more broadly.
 
 ### 4.1 Why dense124 is not a paper reconstruction
 
@@ -374,9 +376,9 @@ The no-swap run finishes at +1.78 dB. Swap p=0.15 remains higher at every record
 
 ---
 
-## 5. Phase III: cross-family transfer and observed improvements
+## 5. Phase III: Cross-family validation of shortcut mitigation
 
-This phase combines the two lines of evidence. Interventions selected with dense124 are transferred back to g24 and tested across conditioning routes and learning-rate schedules; improvements that recur across these settings are more informative than gains confined to the screening architecture.
+If position swap only regularized one dense124 configuration, it would be a local result rather than evidence of shortcut mitigation. Phase III therefore transfers the intervention back to g24 and tests it across conditioning routes and learning-rate schedules; improvements that recur across these settings are more informative than gains confined to the screening architecture.
 
 ### 5.1 Does swap transfer across architecture and route?
 
@@ -499,4 +501,4 @@ WaveSDR provides a consistent scalar comparison, but it cannot by itself disting
 
 ## Bottom line
 
-The paper's public clues define a compelling conditional-separation idea, but not a uniquely reproducible network. Treating the missing details as experimental variables reveals the more durable result: under a synthetic-to-real shift, performance on a training-seen seating arrangement can conceal failure on an unseen arrangement. In this exploratory study, weakening the reliability of the position condition—especially through moderate position swap—substantially improves that unseen-layout behavior without requiring a claim that any one candidate exactly matches the unpublished original model.
+The original paper shows that positional conditioning can help separate same-timbre instruments. This study adds a complementary result: under a single training layout, position can become a brittle part–seat shortcut rather than a transferable cue. The paper-constrained g24 matrix diagnoses that failure, dense124 screens targeted mitigations, and the cross-family paired tests show that moderate position-condition corruption—especially position swap—improves unseen-layout behavior. Diagnosing and mitigating this shortcut is the central contribution of this repository; the proposed mechanism remains a single-seed hypothesis rather than a causal proof.

@@ -14,7 +14,7 @@ Relative to the original study, this repository contributes:
 
 - a controlled stress test that distinguishes real-domain transfer on the training-seen `type2` layout from transfer on the unseen `type1` layout;
 - evidence consistent with a brittle part–seat shortcut: `type2` remains comparatively stable while `type1` is highly sensitive to architecture and conditioning route;
-- a targeted mitigation based on position-condition corruption, with position swap producing a positive real-test `type1` change in all six paired comparisons;
+- a targeted mitigation based on position-condition corruption, with a positive real-test `type1` change in all six reported baseline-to-swap comparisons; five of those comparisons keep the documented training budget and LR schedule matched;
 - explicit claim boundaries: these single-seed results diagnose and mitigate shortcut-like behavior, but do not prove an internal causal mechanism or a statistically confirmed state of the art.
 
 ## Contents
@@ -97,7 +97,6 @@ Symbols in the equation:
 - $x$ is the reference waveform and $\hat{x}$ is the estimated waveform.
 - $x_n$ and $\hat{x}_n$ are corresponding waveform values at index $n$; in the implementation, $n$ ranges over every scored time sample in both stereo channels.
 - $\sum_n$ sums over those channel-sample values. The numerator is reference-signal energy, while the denominator is squared estimation-error energy.
-- $\log_{10}$ is the base-10 logarithm, and the factor $10$ expresses the energy ratio in decibels (dB).
 - $10^{-8}$ is a numerical stabilizer that prevents division by zero. Higher WaveSDR is better.
 
 Every reported number was produced by the versioned compatibility protocol `legacy_v1`, which is now selected explicitly by every checked-in config and implemented once in [`src/sqr_repro/evaluation.py`](src/sqr_repro/evaluation.py). It preserves the historical evaluation path rather than retroactively changing the results:
@@ -169,7 +168,7 @@ flowchart TB
 
 Topology notation:
 
-- $E_1$–$E_3$, $M$, and $D_3$–$D_1$ denote the three encoder blocks, middle block, and three decoder blocks.
+- $E_1$ – $E_3$, $M$, and $D_3$ – $D_1$ denote the three encoder blocks, middle block, and three decoder blocks.
 - $\downarrow 2$ and $\uparrow 2$ mean halving and doubling the time-frequency resolution, respectively. The label `4×4/s2` denotes a $4\times4$ convolutional kernel with stride 2.
 - $\mathrm{concat}$ joins the skip feature and upsampled decoder feature along the channel dimension. The stem and head use $1\times2$ kernels.
 
@@ -177,7 +176,7 @@ STFT packing occurs before this graph; complex unpacking and iSTFT occur after i
 
 #### Inside one TFC–GPoCM–TDF block
 
-Every TFC layer follows $3\times3\text{ convolution} \rightarrow \text{batch normalization} \rightarrow \mathrm{ReLU}$. Layer $L_i$, where $i\in\{1,2,3,4,5\}$, receives the concatenation of the block input and all earlier TFC outputs. The compact labels below show those dense inputs without drawing every redundant edge.
+Every TFC layer follows $3\times3\text{ convolution} \rightarrow \text{batch normalization} \rightarrow \mathrm{ReLU}$. Layer $L_i$, where $i\in\lbrace 1,2,3,4,5\rbrace$, receives the concatenation of the block input and all earlier TFC outputs. The compact labels below show those dense inputs without drawing every redundant edge.
 
 ```mermaid
 flowchart TB
@@ -219,7 +218,7 @@ Symbols in the equation:
 
 A controller converts the selected embedding into the stage-specific channel-mixing matrix $W$ and bias $b$.
 
-| Route | Encoder $E_1$–$E_3$ | Middle $M$ | Decoder $D_3$–$D_1$ | Role in this study |
+| Route | Encoder $E_1$ – $E_3$ | Middle $M$ | Decoder $D_3$ – $D_1$ | Role in this study |
 |---|---|---|---|---|
 | `split_stage_paper` (SSP) | $e_t$ | $e_m$ | $e_p$ | paper-preferred route reported in §4.2 |
 | `mid_dual_paper` (MDP) | unconditioned | unconditioned | $e_m$ | paper-described decoder route in §3.2 and Fig. 2 |
@@ -271,21 +270,23 @@ The first three comparisons form the 12-cell g24 matrix in Section 3; the fourth
 | dense124 intervention screen | 7 / 7 | ✅ Completed |
 | Cross-route / cross-schedule swap follow-ups | 6 / 6 | ✅ Completed |
 
-### 2.7 Shared training protocol for reported runs
+### 2.7 Training protocols for reported runs
 
-All result-bearing runs reported in Sections 3–5 use the following training protocol. The GPU entry records the reference environment used to produce these results; it is not a hardware requirement.
+The result-bearing runs share the hardware class, precision, batch size, optimizer family, architecture-specific crop length, seed, and validation cadence below. They do **not** all share one training budget or LR schedule. The GPU entry records the reference environment used to produce these results; it is not a hardware requirement.
 
 | Item | Setting |
 |---|---|
 | Reference hardware | NVIDIA V100S 32 GB; observed usage 10–24 GB depending on architecture |
 | Precision | FP32 |
 | Batch size | 4 |
-| Training budget | 1000 epochs = 59,000 optimizer updates (59 updates per epoch) |
+| Training budget | Most runs: 1000 epochs = 59,000 optimizer updates; noise/drop screens: 300 epochs = 17,700 updates (59 updates per epoch) |
 | Optimizer | Adam, learning rate `5e-4`, betas `[0.9, 0.999]`, epsilon `1e-8`, weight decay `0` |
-| LR schedule | Constant or 500-update warmup followed by cosine decay |
+| LR schedule | Constant or cosine decay; the cosine runs use either 0 or 500 warmup updates, as disclosed by run group in §4.4 and §5.1 |
 | Training crop | 128 frames for g24; 176 frames for dense124 |
 | Random seed | 2026 (single seed) |
 | Validation | Every 25 epochs, using full-length WaveSDR on 12 validation records |
+
+The Phase II mechanism screen therefore mixes optimization protocols: its noise/drop rows use a shorter constant-LR screen, its no-swap MDP reference uses cosine decay without warmup, and its MDP swap/gate rows use a 500-update warmup followed by cosine decay. Cross-mechanism comparisons in that screen are exploratory rather than single-variable intervention effects. Phase III identifies the baseline-to-swap comparisons whose documented protocols are matched.
 
 See [`REPRODUCIBILITY.md`](REPRODUCIBILITY.md) for the complete execution and evaluation protocol and [`ENVIRONMENT.md`](ENVIRONMENT.md) for the recorded software stack.
 
@@ -378,7 +379,7 @@ More precisely:
 - dense124 returns the final dense layer rather than using the g24 concat-plus-projection rule;
 - dense124 uses 176-frame training crops, whereas g24 uses 128-frame crops.
 
-Therefore dense124 is used here as an **intervention-selection platform**: its large `type2`/`type1` discrepancy makes it useful for testing ways to improve unseen-layout generalization. Direct numerical comparisons between dense124 and g24 remain confounded by architecture and crop length.
+Therefore dense124 is used here as an **exploratory intervention-selection platform**: its large `type2`/`type1` discrepancy makes it useful for testing ways to improve unseen-layout generalization. Direct numerical comparisons between dense124 and g24 remain confounded by architecture and crop length; comparisons across the Phase II mechanism rows are additionally confounded by the training-budget and LR differences disclosed in §4.4.
 
 ### 4.2 Base dense124 route × LR matrix
 
@@ -408,7 +409,7 @@ It is therefore defensible to group all four within one **combinatorial-generali
 
 ### 4.4 Completed intervention screen
 
-The screen uses dense124/MDP with warmup-cosine unless otherwise noted. Position swap leaves the mixture, target, and timbre ID unchanged; with probability $p$ for a training batch, it globally permutes the four position IDs. Thus the position label becomes an unreliable cue on a controlled fraction of updates.
+All rows use dense124/MDP, but they do not share one optimization protocol. Position swap leaves the mixture, target, and timbre ID unchanged; with probability $p$ for a training batch, it globally permutes the four position IDs. Thus the position label becomes an unreliable cue on a controlled fraction of updates.
 
 | Intervention | Test `type1` median | Test `type2` median | Test mean | Status |
 |---|---:|---:|---:|---|
@@ -420,6 +421,14 @@ The screen uses dense124/MDP with warmup-cosine unless otherwise noted. Position
 | Position swap, $p=0.25$ | +1.97 | +1.93 | **+2.35** | ✅ Completed |
 | Position swap, $p=0.50$ | +2.15 | +2.17 | +2.22 | ✅ Completed |
 | Gate-invariance regularization, $\lambda=1.0$ | +1.81 | +2.13 | +2.24 | ✅ Completed |
+
+| Rows | Training budget | LR protocol |
+|---|---:|---|
+| None | 1000 epochs / 59,000 updates | cosine decay, no warmup |
+| Position noise and position drop | 300 epochs / 17,700 updates | constant `5e-4` |
+| Position swap, $p\in\lbrace 0.10,0.15,0.25,0.50\rbrace$; gate invariance | 1000 epochs / 59,000 updates | 500-update warmup, then cosine decay |
+
+The four nonzero swap doses share one protocol and can be compared with one another. Comparisons with the no-swap row also include a warmup change, while comparisons with noise/drop additionally include budget and LR-schedule changes. The screen therefore nominates mechanisms for controlled follow-up; it does not by itself identify a causal intervention effect.
 
 Symbols used for the interventions:
 
@@ -445,22 +454,22 @@ Symbols in the objective:
 
 The table uses the final 48-query summaries stored in [`results/`](results/). The $p=0.25$ and gate-invariance final summaries are retained in [`results/historical_test_results/`](results/historical_test_results/); the remaining rows have canonical per-run `test_results.json` files.
 
-The dense124/MDP real-test dose response makes the main pattern easier to see:
+The dense124/MDP real-test outcomes across swap settings make the reported pattern easier to see. The $p=0$ point is a context baseline with no warmup; only the four nonzero doses form a protocol-matched dose comparison:
 
-![Phase II: dense124 MDP real-test position-swap dose response](figures/phase2_mdp_swap_dose_response.png)
+![Phase II: reported dense124 MDP real-test outcomes across position-swap settings](figures/phase2_mdp_swap_dose_response.png)
 
-Most of the `type1` gain appears by $p=0.10$, and `type1` nearly matches `type2` at $p=0.15$. Results remain similar at $p=0.25$ and $p=0.50$, supporting a broad effective range rather than a sharply identified optimum.
+Among the four nonzero doses, `type1` nearly matches `type2` at $p=0.15$, and results remain similar at $p=0.25$ and $p=0.50$. This supports a broad effective range within the matched swap-dose group rather than a sharply identified optimum. The jump from $p=0$ to $p=0.10$ cannot be attributed to swap alone because the warmup protocol also changes.
 
 ### 4.5 What the screen supports
 
-- Position swap gives the largest `type1` gains in this screen and also preserves or improves the overall mean at the tested doses.
-- Gate-invariance regularization also improves both `type1` and the overall mean; swap is therefore not the only effective intervention.
-- Noise and drop improve `type1` modestly but reduce the mean, which is consistent with generic regularization rather than a clean resolution of the combination problem.
-- These outcomes are **consistent with** reduced dependence on the fixed part/seat association. They do not prove that the network learned to “verify the label from audio”; that causal explanation requires counterfactual tests.
+- Within the protocol-matched nonzero swap-dose group, `type1` and the overall mean remain strong across $p=0.10$ – $p=0.50$; $p=0.15$ gives the highest `type1`, while $p=0.25$ gives the highest mean.
+- Gate-invariance regularization uses the same 1000-epoch, 500-update-warmup protocol as the swap-dose group and also produces strong results; swap is therefore not the only promising mechanism.
+- Noise and drop use a 300-epoch constant-LR screen, so their differences from the no-swap and swap rows cannot be attributed solely to the corruption mechanism.
+- The Phase II outcomes justify controlled follow-up but do not establish a causal ranking of interventions. They also do not prove that the network learned to “verify the label from audio”; that explanation requires counterfactual tests.
 
 #### Validation view: the same intervention under SSP
 
-The dose-response figure above uses dense124/MDP test results. As a complementary check, the figure below compares dense124/SSP validation `type1` with and without swap:
+The outcome figure above uses dense124/MDP test results. As a complementary controlled check, the figure below compares dense124/SSP validation `type1` with and without swap. Both SSP runs use 1000 epochs and cosine decay without warmup, so the documented optimization protocol is matched:
 
 ![Phase II: swap effect on type1](figures/phase2_swap_effect.png)
 
@@ -471,7 +480,7 @@ The no-swap run finishes at +1.78 dB. Swap with $p=0.15$ remains higher at every
 
 ## 5. Phase III: Cross-family validation of shortcut mitigation
 
-If position swap only regularized one dense124 configuration, it would be a local result rather than evidence of shortcut mitigation. Phase III therefore transfers the intervention back to g24 and tests it across conditioning routes and learning-rate schedules; improvements that recur across these settings are more informative than gains confined to the screening architecture.
+If position swap only regularized one dense124 configuration, it would be a local result rather than evidence of shortcut mitigation. Phase III therefore transfers the intervention back to g24 and tests it across conditioning routes and learning-rate schedules, while distinguishing protocol-matched contrasts from one documented protocol-mismatched comparison.
 
 ### 5.1 Does swap transfer across architecture and route?
 
@@ -486,13 +495,15 @@ The same $p=0.15$ intervention was tested beyond the dense124/MDP screening cell
 | dense124 / MDP / wcos | −0.13 | +2.17 | +2.30 | +1.32 | +2.25 | ✅ Completed |
 | dense124 / SSP / wcos | −0.05 | +1.88 | +1.94 | +1.29 | +2.19 | ✅ Completed |
 
-$\Delta_{\mathrm{type1}}$ denotes the paired change in test `type1` median WaveSDR from no swap to swap. It is computed from unrounded medians, so it can differ by 0.01 dB from subtracting the two displayed endpoint values.
+The four g24 rows and the dense124/SSP row keep the documented training budget and LR schedule matched between no swap and swap. The dense124/MDP row is the exception: its no-swap endpoint uses cosine decay without warmup, whereas its swap endpoint uses a 500-update warmup before cosine decay.
 
-The paired real-test view summarizes the same six comparisons:
+$\Delta_{\mathrm{type1}}$ denotes the reported change in test `type1` median WaveSDR from no swap to swap. It is a protocol-matched intervention contrast for five rows; for dense124/MDP it combines the swap change with the warmup change. Values use unrounded medians, so they can differ by 0.01 dB from subtracting the displayed endpoints.
 
-![Phase III: paired real-test type1 comparison with and without position swap](figures/phase3_test_type1_paired.png)
+The real-test view summarizes the same six reported comparisons:
 
-The $p=0.15$ change is positive in all six comparisons and is largest when the no-swap baseline is weakest, especially for SSP and dense124. This recurrence is more informative than any single gain, but the single-seed differences are not significance-tested effects.
+![Phase III: reported real-test type1 comparison with and without position swap](figures/phase3_test_type1_paired.png)
+
+The $p=0.15$ change is positive in all six reported comparisons and, importantly, in all five protocol-matched comparisons. The dense124/MDP result points in the same direction but is not a single-variable estimate because warmup also changes. The matched recurrence is more informative than any single gain, but these single-seed differences are not significance-tested effects.
 
 #### Validation view: route transfer on g24 B
 
@@ -520,13 +531,13 @@ Under constant LR, g24 B/MDP was also completed with swap $p=0.25$: `type1 = +1.
 | **Best all-query mean** | dense124 / MDP / wcos / swap $p=0.25$ | +1.97 | +1.93 | **+2.35** |
 | **Best growth-24 `type1` result** | g24 B / MDP / const / swap $p=0.15$ | **+1.76** | +2.05 | +2.19 |
 
-“Best” means the largest observed value among the completed runs in this repository. It does not mean statistically superior: all headline runs use seed 2026 and the same six URMP test works.
+“Best” means the largest observed value among the completed runs in this repository. It does not mean statistically superior or remove the protocol qualifications above: all headline runs use seed 2026 and the same six URMP test works.
 
 ### 5.3 What can be concluded
 
 1. The g24 search shows that paper-compatible growth-24 implementations can have similar `type2` performance but very different `type1` performance. Hidden architectural choices matter most for the unseen combination.
 2. The dense124 search shows that a rounded 46M match alone is not meaningful: its growth-124 SSP model matches the count yet fails the unmodified `type1` test.
-3. Across the tested configurations, moderate corruption of the position condition is a promising way to improve real-domain unseen-layout performance. The evidence is broad across routes and schedules, but remains exploratory because it is based on one seed and a repeatedly consulted test set.
+3. In all five protocol-matched no-swap/swap comparisons, moderate position corruption with $p=0.15$ improves real-domain unseen-layout performance. The dense124/MDP comparison is directionally consistent but also changes warmup. The evidence remains exploratory because it is based on one seed and a repeatedly consulted test set.
 
 ---
 
@@ -596,4 +607,4 @@ WaveSDR provides a consistent scalar comparison, but it cannot by itself disting
 
 ## Bottom line
 
-The original paper shows that positional conditioning can help separate same-timbre instruments. This study adds a complementary result: under a single training layout, position can become a brittle part–seat shortcut rather than a transferable cue. The paper-constrained g24 matrix diagnoses that failure, dense124 screens targeted mitigations, and the cross-family paired tests show that moderate position-condition corruption—especially position swap—improves unseen-layout behavior. Diagnosing and mitigating this shortcut is the central contribution of this repository; the proposed mechanism remains a single-seed hypothesis rather than a causal proof.
+The original paper shows that positional conditioning can help separate same-timbre instruments. This study adds a complementary result: under a single training layout, position can become a brittle part–seat shortcut rather than a transferable cue. The paper-constrained g24 matrix diagnoses that failure, dense124 screens targeted mitigations, and five protocol-matched baseline-to-swap comparisons show that moderate position-condition corruption improves unseen-layout behavior. Diagnosing and mitigating this shortcut is the central contribution of this repository; the proposed mechanism remains a single-seed hypothesis rather than a causal proof.

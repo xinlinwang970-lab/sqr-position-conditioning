@@ -1,6 +1,6 @@
 # From Synthetic to Real
 
-## A String-Quartet MSS Study of Positional Shortcuts under Synthetic-to-Real and Unseen-Layout Shifts
+## Positional Shortcuts and Combinatorial Generalization in String-Quartet MSS
 
 This repository studies one question:
 
@@ -92,14 +92,25 @@ This project evaluates the reconstructed full-length waveform with the following
 \right).
 ```
 
-where $x$ is the reference waveform and $\hat{x}$ is the estimated waveform. Higher is better.
+Symbols in the equation:
+
+- $x$ is the reference waveform and $\hat{x}$ is the estimated waveform.
+- $x_n$ and $\hat{x}_n$ are corresponding waveform values at index $n$; in the implementation, $n$ ranges over every scored time sample in both stereo channels.
+- $\sum_n$ sums over those channel-sample values. The numerator is reference-signal energy, while the denominator is squared estimation-error energy.
+- $\log_{10}$ is the base-10 logarithm, and the factor $10$ expresses the energy ratio in decibels (dB).
+- $10^{-8}$ is a numerical stabilizer that prevents division by zero. Higher WaveSDR is better.
 
 Every reported number was produced by the versioned compatibility protocol `legacy_v1`, which is now selected explicitly by every checked-in config and implemented once in [`src/sqr_repro/evaluation.py`](src/sqr_repro/evaluation.py). It preserves the historical evaluation path rather than retroactively changing the results:
 
-- a segment contains `(num_frames - 1) × hop_length` waveform samples;
-- the overlap-add stride is `int(segment_samples × (1 - 0.5))`, with no rounding to an STFT-hop multiple;
-- each segment uses `torch.hann_window(..., periodic=True)`, and the accumulated blend weights are clamped to a minimum of `1e-8` before division;
+- a segment contains $(N_f-1)H$ waveform samples;
+- the overlap-add stride is $\lfloor N_s(1-r)\rfloor$ with $r=0.5$, with no rounding to an STFT-hop multiple;
+- each segment uses `torch.hann_window(..., periodic=True)`, and the accumulated blend weights are clamped to a minimum of $10^{-8}$ before division;
 - an input shorter than one segment is padded for inference, while scoring uses the common available estimate/reference length.
+
+Notation in the two length expressions above:
+
+- $N_f$ is the number of STFT frames in one segment (`num_frames`), and $H$ is the waveform-sample step between adjacent STFT frames (`hop_length`). Thus $N_s=(N_f-1)H$ is the covered segment length in waveform samples.
+- $N_s$ corresponds to `segment_samples`, $r$ is the requested overlap ratio, and $r=0.5$ specifies 50% overlap. The floor operator $\lfloor\cdot\rfloor$ expresses the positive-value truncation performed by `int(...)`.
 
 Important boundaries:
 
@@ -121,12 +132,12 @@ The paper provides enough information to constrain a model family, but not enoug
 |---|---|
 | U-Net-like separator with 7 blocks | 3 encoder blocks, 1 middle block, and 3 decoder blocks |
 | Stereo complex spectrogram | real/imaginary components of left/right channels are packed as 4 feature channels |
-| Input/output convolutions | an initial and a final `1×2` convolution surround the 7 blocks |
+| Input/output convolutions | an initial and a final $1\times2$ convolution surround the 7 blocks |
 | TFC-TDF backbone | every principal block contains a densely connected time-frequency convolution stack and a frequency transform |
-| TFC specification | 5 dense `3×3` convolutional layers, growth rate 24 |
+| TFC specification | 5 dense $3\times3$ convolutional layers, growth rate 24 |
 | Conditional modulation | a condition-generated GPoCM gate modulates block features |
-| Conditions | 32-dimensional timbre and position embeddings; `e_m = 0.5(e_t + e_p)` |
-| Best route reported in §4.2 | encoder ← `e_t`, middle ← `e_m`, decoder ← `e_p` |
+| Conditions | 32-dimensional timbre and position embeddings; their equal-weight mean is defined in §2.3 |
+| Best route reported in §4.2 | encoder $\leftarrow e_t$, middle $\leftarrow e_m$, decoder $\leftarrow e_p$ |
 | Model size | approximately 46M parameters, reported as a rounded total |
 
 ### 2.2 Architecture in two compact views
@@ -135,7 +146,7 @@ The architecture is split into two figures so that network topology and block in
 
 #### Seven-block U-Net topology and resolution changes
 
-The seven principal blocks are `E1 → E2 → E3 → M → D3 → D2 → D1`. Each decoder receives the upsampled lower-resolution feature concatenated with the encoder feature at the same resolution.
+The seven principal blocks are $E_1 \rightarrow E_2 \rightarrow E_3 \rightarrow M \rightarrow D_3 \rightarrow D_2 \rightarrow D_1$. Each decoder receives the upsampled lower-resolution feature concatenated with the encoder feature at the same resolution.
 
 ```mermaid
 flowchart TB
@@ -156,11 +167,17 @@ flowchart TB
     D1 --> HEAD["Head · 1×2 conv"] --> OUT["4-channel source estimate"]
 ```
 
+Topology notation:
+
+- $E_1$–$E_3$, $M$, and $D_3$–$D_1$ denote the three encoder blocks, middle block, and three decoder blocks.
+- $\downarrow 2$ and $\uparrow 2$ mean halving and doubling the time-frequency resolution, respectively. The label `4×4/s2` denotes a $4\times4$ convolutional kernel with stride 2.
+- $\operatorname{concat}$ joins the skip feature and upsampled decoder feature along the channel dimension. The stem and head use $1\times2$ kernels.
+
 STFT packing occurs before this graph; complex unpacking and iSTFT occur after it. Down/up operators include batch normalization and ReLU in this repository. Their exact kernels are disclosed implementation choices, not uniquely determined by the paper.
 
 #### Inside one TFC–GPoCM–TDF block
 
-Every TFC layer is `3×3 convolution → batch normalization → ReLU`. Layer $L_i$ receives the concatenation of the block input and all earlier TFC outputs. The compact labels below show those dense inputs without drawing every redundant edge.
+Every TFC layer follows $3\times3\text{ convolution} \rightarrow \text{batch normalization} \rightarrow \operatorname{ReLU}$. Layer $L_i$, where $i\in\{1,2,3,4,5\}$, receives the concatenation of the block input and all earlier TFC outputs. The compact labels below show those dense inputs without drawing every redundant edge.
 
 ```mermaid
 flowchart TB
@@ -170,23 +187,44 @@ flowchart TB
     end
     L5 --> ALL["concat(h0,L1,…,L5)"] --> PROJ["1×1 projection<br/>g24 hypothesis"]
     COND["stage condition"] --> CTRL["controller MLP"] --> WB["W, b"]
-    PROJ --> GATE["GPoCM<br/>σ(Wh+b) ⊙ h"]
+    PROJ --> GATE["GPoCM<br/>h = σ(W h_in+b) ⊙ h_in"]
     WB --> GATE
     GATE --> RES(("+"))
     GATE --> TDF["TDF · F → bottleneck → F"] --> RES
     RES --> OUT["block output"]
 ```
 
+Notation in the block diagram:
+
+- $h_0$ is the block input; $L_1$ through $L_5$ are the five densely connected TFC-layer outputs.
+- $\operatorname{concat}(h_0,L_1,\ldots,L_5)$ joins those six tensors along the channel dimension before projection.
+- $h_{\mathrm{in}}$ is the feature produced by the $1\times1$ projection and presented to GPoCM; $h$ is the gated feature sent to TDF and the residual path.
+- $W$ and $b$ are the stage-specific channel-mixing matrix and bias generated by the controller from the selected condition embedding.
+- $Wh_{\mathrm{in}}+b$ is an affine channel transform: $W$ multiplies $h_{\mathrm{in}}$, then $b$ is added. $\sigma$ is the logistic sigmoid, and $\odot$ denotes element-wise multiplication. The displayed equation defines $h$ as the gated version of $h_{\mathrm{in}}$.
+- $F$ denotes the full frequency-axis width entering and leaving TDF; the middle TDF layer uses a smaller frequency bottleneck.
+
 ### 2.3 Conditioning routes
 
-Timbre and position use separate 32-dimensional embeddings, with `e_m = 0.5(e_t + e_p)`. A controller converts the selected embedding into the stage-specific channel-mixing matrix `W` and bias `b`.
+Timbre and position use separate 32-dimensional embeddings, combined by an element-wise arithmetic mean:
 
-| Route | Encoder `E1–E3` | Middle `M` | Decoder `D3–D1` | Role in this study |
+```math
+e_m=\frac{1}{2}\left(e_t+e_p\right).
+```
+
+Symbols in the equation:
+
+- $e_t$ is the 32-dimensional timbre embedding, $e_p$ is the 32-dimensional position embedding, and $e_m$ is their 32-dimensional mixed embedding.
+- The subscripts $t$, $p$, and $m$ denote timbre, position, and mixed, respectively.
+- The factor $\frac{1}{2}$ gives the two embeddings equal weight; addition is element-wise.
+
+A controller converts the selected embedding into the stage-specific channel-mixing matrix $W$ and bias $b$.
+
+| Route | Encoder $E_1$–$E_3$ | Middle $M$ | Decoder $D_3$–$D_1$ | Role in this study |
 |---|---|---|---|---|
-| `split_stage_paper` (SSP) | `e_t` | `e_m` | `e_p` | paper-preferred route reported in §4.2 |
-| `mid_dual_paper` (MDP) | unconditioned | unconditioned | `e_m` | paper-described decoder route in §3.2 and Fig. 2 |
+| `split_stage_paper` (SSP) | $e_t$ | $e_m$ | $e_p$ | paper-preferred route reported in §4.2 |
+| `mid_dual_paper` (MDP) | unconditioned | unconditioned | $e_m$ | paper-described decoder route in §3.2 and Fig. 2 |
 
-`MDP` is this repository's shorthand rather than an acronym used verbatim in the paper. It denotes the §3.2/Fig. 2 topology, where the averaged timbre-position embedding conditions GPoCM at decoder levels. Section 4.2 further reports that assigning `e_t` to the encoder, `e_m` to the middle, and `e_p` to the decoder performed best; this repository calls that second route SSP.
+`MDP` is this repository's shorthand rather than an acronym used verbatim in the paper. It denotes the §3.2/Fig. 2 topology, where the averaged timbre-position embedding conditions GPoCM at decoder levels. Section 4.2 further reports that assigning $e_t$ to the encoder, $e_m$ to the middle, and $e_p$ to the decoder performed best; this repository calls that second route SSP.
 
 ### 2.4 GPoCM equation and implementation boundary
 
@@ -201,7 +239,15 @@ For feature map $D^i$ at stage $i$, the implemented gate follows the published f
 \end{aligned}
 ```
 
-The repository applies GPoCM after TFC and before TDF, then returns `h + TDF(h)`. The g24 family concatenates the dense input and all five growth-24 outputs and projects them to the stage width with `1×1` convolution. This projection is an explicit reconstruction hypothesis, not a detail claimed to be present in the authors' model.
+Symbols and operators in the equations:
+
+- $i$ indexes the network stage, $c$ indexes the channel being gated, and $j$ indexes the input channels included in the sum. Time-frequency coordinates are omitted for readability.
+- $D^i_j$ is input channel $j$ of the stage-$i$ feature map, while $D^i_c$ is channel $c$, which is modulated by the resulting gate.
+- $\omega^i_{cj}$ is the condition-generated mixing coefficient from channel $j$ to channel $c$; $\beta^i_c$ is the corresponding condition-generated bias.
+- $\sum_j$ sums the channel contributions. $\mathrm{PoCM}$ denotes Point-wise Convolutional Modulation: the channel-wise affine combination can be viewed as a point-wise ($1\times1$) convolution.
+- $\sigma$ is the logistic sigmoid, and $\odot$ is element-wise multiplication. $\mathrm{GPoCM}$ denotes Gated PoCM, obtained by multiplying the sigmoid gate by $D^i_c$.
+
+The repository applies GPoCM after TFC and before TDF, then returns $h+\mathrm{TDF}(h)$: $h$ is the gated feature entering TDF, $\mathrm{TDF}(h)$ is its frequency-transformed residual, and $+$ is element-wise residual addition. The g24 family concatenates the dense input and all five growth-24 outputs and projects them to the stage width with a $1\times1$ convolution. This projection is an explicit reconstruction hypothesis, not a detail claimed to be present in the authors' model.
 
 ### 2.5 From unpublished choices to completed experiments
 
@@ -281,7 +327,11 @@ Each cell is `type1 median / type2 median` WaveSDR in dB.
 | B | −0.02 / +1.65 | +0.11 / +1.45 | **+1.63 / +1.74** | **+1.29 / +1.53** |
 | C | −0.14 / +1.72 | +0.15 / +1.56 | −0.37 / +1.80 | −0.14 / +1.75 |
 
-### 3.3 What the matrix reveals
+### 3.3 Shortcut diagnosis: the problem stated plainly
+
+> **The shortcut under investigation:** every training item uses `type2`, so the model can reduce training loss by treating the position ID as a part-routing lookup table—“position 0 means cello; position 2 means violin 2”—instead of checking the mixture for the source that matches the joint timbre-position query. That rule is correct throughout training, but becomes wrong in `type1`, where cello and violin 2 exchange positions.
+
+This is a shortcut in the operational sense described by [Geirhos et al.](https://doi.org/10.1038/s42256-020-00257-z): a decision rule that succeeds in the training or standard evaluation setting but fails under a more challenging transfer condition. The concrete problem here is therefore not merely “`type1` scores are lower.” It is that a model can appear successful on real `type2` while remaining dependent on the training-specific part-position pairing.
 
 Across all 12 base runs:
 
@@ -295,7 +345,13 @@ Because training sees synthetic `type2` only, these results separate two empiric
 1. **Synthetic → real, seen combination (`type2`)**: transfer is imperfect but comparatively stable.
 2. **Synthetic → real, unseen combination (`type1`)**: the additional compositional shift is fragile and route dependent.
 
-This shortcut-like pattern is the central problem that motivates the Phase II mitigation screen.
+The diagnostic chain is explicit:
+
+1. **The shortcut is available:** training contains only the fixed `type2` part-position mapping.
+2. **The predicted failure is observed:** `type2` stays comparatively stable, whereas `type1` is much more variable and often poor; the paired synthetic validation layouts show that this fragility is not explained by the real-domain shift alone.
+3. **The hypothesis is testable:** Phases II and III deliberately weaken the fixed mapping and ask whether `type1` improves without sacrificing `type2`.
+
+This is evidence consistent with positional-shortcut reliance, not direct proof of an internal causal mechanism: the model's hidden decision rule is not observed directly, and the rendered audio also changes with layout. The observable problem—strong dependence on whether the training part-position combination is preserved—is nevertheless clear and motivates the Phase II intervention screen.
 
 #### Validation curves: type1 fragility vs type2 stability
 
@@ -335,30 +391,67 @@ Each cell is `type1 median / type2 median` WaveSDR in dB. **Status: ✅ all 4 ru
 
 The matched-layout real score is positive in every cell, while unseen-layout `type1` is negative in every cell. This is a sharper version of the g24 pattern and provides a useful baseline for intervention screening.
 
-### 4.3 Completed intervention screen
+### 4.3 Combinatorial-generalization framing
+
+[Compositional generalization](https://openreview.net/pdf?id=SygcCnNKwr) asks whether familiar components can be recombined successfully in combinations not observed during training. This study instantiates a narrow **combinatorial** case: all four parts and all four position IDs are familiar, but training exposes only their `type2` pairing, while `type1` recombines cello and violin 2 with familiar positions.
+
+The four dense124 interventions address that same failure mode through different mechanisms:
+
+| Intervention | Relation to the combinatorial-generalization problem |
+|---|---|
+| Position-embedding noise | indirectly blurs the exact position code, testing whether a brittle lookup rule can be weakened |
+| Position-embedding drop | indirectly removes the position cue for some samples, testing whether the model can rely more on mixture and timbre evidence |
+| Position swap | most directly breaks the deterministic training association by presenting alternative position-ID assignments on some batches |
+| Gate-invariance regularization | explicitly constrains decoder conditioning parameters to remain stable under a permutation of position IDs |
+
+It is therefore defensible to group all four within one **combinatorial-generalization study**, but not to claim that they are four instances of one formal compositional-generalization algorithm. Swap is the direct association-breaking intervention; noise and drop are cue-weakening regularizers; gate-invariance imposes an explicit permutation-stability constraint. Because swap leaves the audio mixture and target unchanged, it is condition corruption rather than supervised augmentation with correctly rendered `type1` examples.
+
+### 4.4 Completed intervention screen
 
 The screen uses dense124/MDP with warmup-cosine unless otherwise noted. Position swap leaves the mixture, target, and timbre ID unchanged; with probability $p$ for a training batch, it globally permutes the four position IDs. Thus the position label becomes an unreliable cue on a controlled fraction of updates.
 
 | Intervention | Test `type1` median | Test `type2` median | Test mean | Status |
 |---|---:|---:|---:|---|
 | None | −0.13 | +1.78 | +1.32 | ✅ Completed |
-| Position-embedding noise, σ = 0.10 | +0.43 | +1.24 | +0.79 | ✅ Completed |
-| Position-embedding drop, p = 0.25 | +0.34 | +1.69 | +1.01 | ✅ Completed |
-| Position swap, p = 0.10 | +1.51 | +2.06 | +1.99 | ✅ Completed |
-| **Position swap, p = 0.15** | **+2.17** | **+2.20** | +2.25 | ✅ Completed |
-| Position swap, p = 0.25 | +1.97 | +1.93 | **+2.35** | ✅ Completed |
-| Position swap, p = 0.50 | +2.15 | +2.17 | +2.22 | ✅ Completed |
-| Gate-invariance regularization, λ = 1.0 | +1.81 | +2.13 | +2.24 | ✅ Completed |
+| Position-embedding noise, $\sigma=0.10$ | +0.43 | +1.24 | +0.79 | ✅ Completed |
+| Position-embedding drop, $p=0.25$ | +0.34 | +1.69 | +1.01 | ✅ Completed |
+| Position swap, $p=0.10$ | +1.51 | +2.06 | +1.99 | ✅ Completed |
+| **Position swap**, $p=0.15$ | **+2.17** | **+2.20** | +2.25 | ✅ Completed |
+| Position swap, $p=0.25$ | +1.97 | +1.93 | **+2.35** | ✅ Completed |
+| Position swap, $p=0.50$ | +2.15 | +2.17 | +2.22 | ✅ Completed |
+| Gate-invariance regularization, $\lambda=1.0$ | +1.81 | +2.13 | +2.24 | ✅ Completed |
 
-The table uses the final 48-query summaries stored in [`results/`](results/). The p=0.25 and gate-invariance final summaries are retained in [`results/historical_test_results/`](results/historical_test_results/); the remaining rows have canonical per-run `test_results.json` files.
+Symbols used for the interventions:
+
+- $p$ is a corruption probability. For position swap, it is the probability of applying one global permutation of the four position IDs to a training batch; for position drop, it is the per-sample probability of setting the entire position-embedding vector to zero.
+- $\sigma$ is the standard deviation of the zero-mean Gaussian noise added independently to each element of the position embedding; the reported noise run uses $\sigma=0.10$.
+
+For gate-invariance regularization, the total training objective is
+
+```math
+\mathcal{L}_{\mathrm{total}}
+=
+\mathcal{L}_{\mathrm{sep}}
++
+\lambda\mathcal{L}_{\mathrm{inv}}.
+```
+
+Symbols in the objective:
+
+- $\mathcal{L}_{\mathrm{total}}$ is the total loss optimized during the gate-invariance run.
+- $\mathcal{L}_{\mathrm{sep}}$ is the packed-complex mean-squared error used for source separation.
+- $\mathcal{L}_{\mathrm{inv}}$ is the decoder-stage average of the mean-squared differences between condition-generated $W$ and $b$ under the original position IDs and a random permutation of those IDs.
+- $\lambda$ weights the invariance term through multiplication; the completed run uses $\lambda=1.0$.
+
+The table uses the final 48-query summaries stored in [`results/`](results/). The $p=0.25$ and gate-invariance final summaries are retained in [`results/historical_test_results/`](results/historical_test_results/); the remaining rows have canonical per-run `test_results.json` files.
 
 The dense124/MDP real-test dose response makes the main pattern easier to see:
 
 ![Phase II: dense124 MDP real-test position-swap dose response](figures/phase2_mdp_swap_dose_response.png)
 
-Most of the `type1` gain appears by p=0.10, and `type1` nearly matches `type2` at p=0.15. Results remain similar at p=0.25 and p=0.50, supporting a broad effective range rather than a sharply identified optimum.
+Most of the `type1` gain appears by $p=0.10$, and `type1` nearly matches `type2` at $p=0.15$. Results remain similar at $p=0.25$ and $p=0.50$, supporting a broad effective range rather than a sharply identified optimum.
 
-### 4.4 What the screen supports
+### 4.5 What the screen supports
 
 - Position swap gives the largest `type1` gains in this screen and also preserves or improves the overall mean at the tested doses.
 - Gate-invariance regularization also improves both `type1` and the overall mean; swap is therefore not the only effective intervention.
@@ -371,7 +464,7 @@ The dose-response figure above uses dense124/MDP test results. As a complementar
 
 ![Phase II: swap effect on type1](figures/phase2_swap_effect.png)
 
-The no-swap run finishes at +1.78 dB. Swap p=0.15 remains higher at every recorded checkpoint, peaks at +6.31 dB, and finishes at +4.77 dB. The trajectory is clearly improved but not monotonic; it should be read as supporting evidence for the intervention, not as proof of a particular learning mechanism.
+The no-swap run finishes at +1.78 dB. Swap with $p=0.15$ remains higher at every recorded checkpoint, peaks at +6.31 dB, and finishes at +4.77 dB. The trajectory is clearly improved but not monotonic; it should be read as supporting evidence for the intervention, not as proof of a particular learning mechanism.
 
 
 ---
@@ -382,9 +475,9 @@ If position swap only regularized one dense124 configuration, it would be a loca
 
 ### 5.1 Does swap transfer across architecture and route?
 
-The same p=0.15 idea was tested beyond the dense124/MDP screening cell. Values are test `type1` median and all-query mean WaveSDR.
+The same $p=0.15$ intervention was tested beyond the dense124/MDP screening cell. Values are test `type1` median and all-query mean WaveSDR.
 
-| Architecture / route / LR | No-swap `type1` | Swap-0.15 `type1` | Δ `type1` | No-swap mean | Swap mean | Status |
+| Architecture / route / LR | No-swap `type1` | Swap-0.15 `type1` | $\Delta_{\mathrm{type1}}$ | No-swap mean | Swap mean | Status |
 |---|---:|---:|---:|---:|---:|---|
 | g24 B / MDP / wcos | +1.29 | +1.66 | +0.37 | +1.80 | +2.07 | ✅ Completed |
 | g24 B / SSP / wcos | +0.11 | +1.67 | +1.55 | +1.06 | +2.17 | ✅ Completed |
@@ -393,13 +486,13 @@ The same p=0.15 idea was tested beyond the dense124/MDP screening cell. Values a
 | dense124 / MDP / wcos | −0.13 | +2.17 | +2.30 | +1.32 | +2.25 | ✅ Completed |
 | dense124 / SSP / wcos | −0.05 | +1.88 | +1.94 | +1.29 | +2.19 | ✅ Completed |
 
-The Δ column is computed from unrounded medians, so it can differ by 0.01 dB from subtracting the two displayed endpoint values.
+$\Delta_{\mathrm{type1}}$ denotes the paired change in test `type1` median WaveSDR from no swap to swap. It is computed from unrounded medians, so it can differ by 0.01 dB from subtracting the two displayed endpoint values.
 
 The paired real-test view summarizes the same six comparisons:
 
 ![Phase III: paired real-test type1 comparison with and without position swap](figures/phase3_test_type1_paired.png)
 
-The p=0.15 change is positive in all six comparisons and is largest when the no-swap baseline is weakest, especially for SSP and dense124. This recurrence is more informative than any single gain, but the single-seed differences are not significance-tested effects.
+The $p=0.15$ change is positive in all six comparisons and is largest when the no-swap baseline is weakest, especially for SSP and dense124. This recurrence is more informative than any single gain, but the single-seed differences are not significance-tested effects.
 
 #### Validation view: route transfer on g24 B
 
@@ -417,15 +510,15 @@ The final validation ordering is not identical to the real-test ordering:
 
 At epoch 999, warmup-cosine changes from +5.59 to +5.75 dB with swap, while constant LR changes from +5.64 to +5.30 dB. On the real test, however, both paired changes are positive (+0.37 and +0.13 dB respectively). This distinction prevents the validation curve from being over-interpreted: the main transfer claim comes from the paired real-test results, not from a uniformly higher final validation point.
 
-Under constant LR, g24 B/MDP was also completed with swap p=0.25: `type1 = +1.74`, `type2 = +1.86`, and `mean = +2.23` dB. The similar p=0.15 and p=0.25 `type1` values do not support a sharp optimum in the g24 family.
+Under constant LR, g24 B/MDP was also completed with swap $p=0.25$: `type1 = +1.74`, `type2 = +1.86`, and `mean = +2.23` dB. The similar $p=0.15$ and $p=0.25$ `type1` values do not support a sharp optimum in the g24 family.
 
 ### 5.2 Best observed results
 
 | Selection criterion | Configuration | `type1` median | `type2` median | Test mean |
 |---|---|---:|---:|---:|
-| **Best unseen-layout result** | dense124 / MDP / wcos / swap p=0.15 | **+2.17** | +2.20 | +2.25 |
-| **Best all-query mean** | dense124 / MDP / wcos / swap p=0.25 | +1.97 | +1.93 | **+2.35** |
-| **Best growth-24 `type1` result** | g24 B / MDP / const / swap p=0.15 | **+1.76** | +2.05 | +2.19 |
+| **Best unseen-layout result** | dense124 / MDP / wcos / swap $p=0.15$ | **+2.17** | +2.20 | +2.25 |
+| **Best all-query mean** | dense124 / MDP / wcos / swap $p=0.25$ | +1.97 | +1.93 | **+2.35** |
+| **Best growth-24 `type1` result** | g24 B / MDP / const / swap $p=0.15$ | **+1.76** | +2.05 | +2.19 |
 
 “Best” means the largest observed value among the completed runs in this repository. It does not mean statistically superior: all headline runs use seed 2026 and the same six URMP test works.
 
@@ -494,6 +587,8 @@ WaveSDR provides a consistent scalar comparison, but it cannot by itself disting
 ### 7.3 Primary references
 
 - Yuetonghui Xu et al., [*Position also matters! Separating Same Instruments in String Quartet using Timbral and Positional Cues*](https://www.isca-archive.org/interspeech_2025/xu25b_interspeech.pdf), Interspeech 2025, [DOI: 10.21437/Interspeech.2025-130](https://doi.org/10.21437/Interspeech.2025-130).
+- Robert Geirhos et al., [*Shortcut Learning in Deep Neural Networks*](https://doi.org/10.1038/s42256-020-00257-z), Nature Machine Intelligence 2, 665–673 (2020).
+- Daniel Keysers et al., [*Measuring Compositional Generalization: A Comprehensive Method on Realistic Data*](https://openreview.net/pdf?id=SygcCnNKwr), ICLR 2020.
 - [StringQuD reverb two-seating release](https://doi.org/10.5281/zenodo.14793971).
 - [URMP dataset](https://labsites.rochester.edu/air/projects/URMP.html).
 

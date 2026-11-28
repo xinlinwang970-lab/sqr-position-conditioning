@@ -19,9 +19,9 @@ The main empirical pattern is simple but important:
 
 1. [Research direction: synthetic to real](#1-research-direction-synthetic-to-real)
 2. [Paper-constrained reconstruction of the 7-block model](#2-paper-constrained-reconstruction-of-the-7-block-model)
-3. [g24 matrix: discovering the type2-to-type1 difficulty](#3-g24-matrix-discovering-the-type2-to-type1-difficulty)
-4. [dense124 matrix: screening interventions](#4-dense124-matrix-screening-interventions)
-5. [Combined results](#5-combined-results)
+3. [Phase I: g24 reconstruction and generalization diagnosis](#3-phase-i-g24-reconstruction-and-generalization-diagnosis)
+4. [Phase II: dense124 intervention screening](#4-phase-ii-dense124-intervention-screening)
+5. [Phase III: cross-family transfer and observed improvements](#5-phase-iii-cross-family-transfer-and-observed-improvements)
 6. [Two priorities for future work](#6-two-priorities-for-future-work)
 7. [Scope, limitations, and artifact map](#7-scope-limitations-and-artifact-map)
 
@@ -73,6 +73,10 @@ The shift includes at least:
 | Test | URMP human performances | 6 | 12 | `type1` + `type2` | 48 |
 
 There is no composition overlap between these splits. The project follows the checked-in manifests in [`manifests/`](manifests/): 59 released EnsembleSet works for training and 6 for validation. The counts described in the paper, the released 65-work archive, and a possible train/validation interpretation do not uniquely reconcile; the manifests are therefore the operational source of truth for this independent implementation.
+
+The overview below makes the two simultaneous shifts explicit: train/validation use synthetic EnsembleSet performances while the final test uses real URMP performances; training exposes `type2` only, while validation and test include both layouts.
+
+![Study design: synthetic-to-real and seen-to-unseen layout shifts](figures/study_design.png)
 
 ### 1.4 WaveSDR: the metric used in this repository
 
@@ -127,7 +131,7 @@ The paper provides enough information to constrain a model family, but not enoug
 
 The architecture is split into two figures so that network topology and block internals can be read independently.
 
-#### Figure 1 — Seven-block U-Net and resolution changes
+#### Seven-block U-Net topology and resolution changes
 
 The seven principal blocks are `E1 → E2 → E3 → M → D3 → D2 → D1`. Each decoder receives the upsampled lower-resolution feature concatenated with the encoder feature at the same resolution.
 
@@ -152,7 +156,7 @@ flowchart TB
 
 STFT packing occurs before this graph; complex unpacking and iSTFT occur after it. Down/up operators include batch normalization and ReLU in this repository. Their exact kernels are disclosed implementation choices, not uniquely determined by the paper.
 
-#### Figure 2 — Inside one TFC–GPoCM–TDF block
+#### Inside one TFC–GPoCM–TDF block
 
 Every TFC layer is `3×3 convolution → batch normalization → ReLU`. Layer $L_i$ receives the concatenation of the block input and all earlier TFC outputs. The compact labels below show those dense inputs without drawing every redundant edge.
 
@@ -178,9 +182,9 @@ Timbre and position use separate 32-dimensional embeddings, with `e_m = 0.5(e_t 
 | Route | Encoder `E1–E3` | Middle `M` | Decoder `D3–D1` | Role in this study |
 |---|---|---|---|---|
 | `split_stage_paper` (SSP) | `e_t` | `e_m` | `e_p` | paper-preferred route reported in §4.2 |
-| `mid_dual_paper` (MDP) | unconditioned | unconditioned | `e_m` | historical decoder-only control |
+| `mid_dual_paper` (MDP) | unconditioned | unconditioned | `e_m` | paper-described decoder route in §3.2 and Fig. 2 |
 
-MDP is **not** the paper's §4.2 preferred route.
+`MDP` is this repository's shorthand rather than an acronym used verbatim in the paper. It denotes the §3.2/Fig. 2 topology, where the averaged timbre-position embedding conditions GPoCM at decoder levels. Section 4.2 further reports that assigning `e_t` to the encoder, `e_m` to the middle, and `e_p` to the decoder performed best; this repository calls that second route SSP.
 
 ### 2.4 GPoCM equation and implementation boundary
 
@@ -219,9 +223,31 @@ The first three comparisons form the 12-cell g24 matrix in Section 3; the fourth
 | dense124 intervention screen | 7 / 7 | ✅ Completed |
 | Cross-route / cross-schedule swap follow-ups | 6 / 6 | ✅ Completed |
 
+### 2.7 Shared training protocol for reported runs
+
+All result-bearing runs reported in Sections 3–5 use the following training protocol. The GPU entry records the reference environment used to produce these results; it is not a hardware requirement.
+
+| Item | Setting |
+|---|---|
+| Reference hardware | NVIDIA V100S 32 GB; observed usage 10–24 GB depending on architecture |
+| Precision | FP32 |
+| Batch size | 4 |
+| Training budget | 1000 epochs = 59,000 optimizer updates (59 updates per epoch) |
+| Optimizer | Adam, learning rate `5e-4`, betas `[0.9, 0.999]`, epsilon `1e-8`, weight decay `0` |
+| LR schedule | Constant or 500-update warmup followed by cosine decay |
+| Training crop | 128 frames for g24; 176 frames for dense124 |
+| Random seed | 2026 (single seed) |
+| Validation | Every 25 epochs, using full-length WaveSDR on 12 validation records |
+
+See [`REPRODUCIBILITY.md`](REPRODUCIBILITY.md) for the complete execution and evaluation protocol and [`ENVIRONMENT.md`](ENVIRONMENT.md) for the recorded software stack.
+
+The experimental narrative that follows is deliberately sequential: Phase I reconstructs and diagnoses, Phase II screens possible remedies, and Phase III tests whether the selected improvements transfer beyond the screening setup.
+
 ---
 
-## 3. g24 matrix: discovering the type2-to-type1 difficulty
+## 3. Phase I: g24 reconstruction and generalization diagnosis
+
+This phase is the paper-constrained reconstruction stage. The g24 family preserves the published growth rate and rounded parameter-count clue while treating unpublished architectural choices as explicit candidates. Its purpose is to determine what can be reconstructed from the public evidence and then identify the generalization failure that appears when models trained on synthetic `type2` are evaluated on real `type1`.
 
 ### 3.1 Three growth-24 candidates
 
@@ -269,9 +295,19 @@ Because training sees synthetic `type2` only, these results separate two empiric
 
 This is the central problem that motivates the dense124 intervention screen.
 
+#### Validation curves: type1 fragility vs type2 stability
+
+The architecture split emerges during training, not only at the final checkpoint. The figure below shows validation type1 and type2 curves for the three g24 candidates under MDP/wcos:
+
+![Phase I: type1 fragile, type2 stable](figures/phase1_type1_vs_type2.png)
+
+At epoch 999, validation `type1` is +5.59 dB for B but only +1.68 and +1.55 dB for A and C. Validation `type2` remains high for all three (+6.73 to +7.67 dB). This synthetic validation contrast isolates sensitivity to the unseen layout; the real-test matrix above shows that the problem persists when the domain shift is added.
+
 ---
 
-## 4. dense124 matrix: screening interventions
+## 4. Phase II: dense124 intervention screening
+
+This phase turns from reconstruction to solution search. Dense124 is not presented as a faithful version of the paper; its larger baseline `type2`/`type1` discrepancy makes it a high-contrast platform for screening position noise, drop, swap, and gate-invariance interventions before testing them more broadly.
 
 ### 4.1 Why dense124 is not a paper reconstruction
 
@@ -314,17 +350,33 @@ The screen uses dense124/MDP with warmup-cosine unless otherwise noted. Position
 
 The table uses the final 48-query summaries stored in [`results/`](results/). The p=0.25 and gate-invariance final summaries are retained in [`results/historical_test_results/`](results/historical_test_results/); the remaining rows have canonical per-run `test_results.json` files.
 
-### 4.4 Interpretation, with claim boundaries
+The dense124/MDP real-test dose response makes the main pattern easier to see:
+
+![Phase II: dense124 MDP real-test position-swap dose response](figures/phase2_mdp_swap_dose_response.png)
+
+Most of the `type1` gain appears by p=0.10, and `type1` nearly matches `type2` at p=0.15. Results remain similar at p=0.25 and p=0.50, supporting a broad effective range rather than a sharply identified optimum.
+
+### 4.4 What the screen supports
 
 - Position swap gives the largest `type1` gains in this screen and also preserves or improves the overall mean at the tested doses.
 - Gate-invariance regularization also improves both `type1` and the overall mean; swap is therefore not the only effective intervention.
 - Noise and drop improve `type1` modestly but reduce the mean, which is consistent with generic regularization rather than a clean resolution of the combination problem.
-- The broad performance from p=0.15 to p=0.50 suggests a robust region in this single seed, not a precisely estimated optimum.
 - These outcomes are **consistent with** reduced dependence on the fixed part/seat association. They do not prove that the network learned to “verify the label from audio”; that causal explanation requires counterfactual tests.
+
+#### Validation view: the same intervention under SSP
+
+The dose-response figure above uses dense124/MDP test results. As a complementary check, the figure below compares dense124/SSP validation `type1` with and without swap:
+
+![Phase II: swap effect on type1](figures/phase2_swap_effect.png)
+
+The no-swap run finishes at +1.78 dB. Swap p=0.15 remains higher at every recorded checkpoint, peaks at +6.31 dB, and finishes at +4.77 dB. The trajectory is clearly improved but not monotonic; it should be read as supporting evidence for the intervention, not as proof of a particular learning mechanism.
+
 
 ---
 
-## 5. Combined results
+## 5. Phase III: cross-family transfer and observed improvements
+
+This phase combines the two lines of evidence. Interventions selected with dense124 are transferred back to g24 and tested across conditioning routes and learning-rate schedules; improvements that recur across these settings are more informative than gains confined to the screening architecture.
 
 ### 5.1 Does swap transfer across architecture and route?
 
@@ -333,13 +385,35 @@ The same p=0.15 idea was tested beyond the dense124/MDP screening cell. Values a
 | Architecture / route / LR | No-swap `type1` | Swap-0.15 `type1` | Δ `type1` | No-swap mean | Swap mean | Status |
 |---|---:|---:|---:|---:|---:|---|
 | g24 B / MDP / wcos | +1.29 | +1.66 | +0.37 | +1.80 | +2.07 | ✅ Completed |
-| g24 B / SSP / wcos | +0.11 | +1.67 | +1.56 | +1.06 | +2.17 | ✅ Completed |
+| g24 B / SSP / wcos | +0.11 | +1.67 | +1.55 | +1.06 | +2.17 | ✅ Completed |
 | g24 B / MDP / const | +1.63 | +1.76 | +0.13 | +1.97 | +2.19 | ✅ Completed |
 | g24 B / SSP / const | −0.02 | +1.46 | +1.48 | +1.07 | +2.10 | ✅ Completed |
 | dense124 / MDP / wcos | −0.13 | +2.17 | +2.30 | +1.32 | +2.25 | ✅ Completed |
 | dense124 / SSP / wcos | −0.05 | +1.88 | +1.94 | +1.29 | +2.19 | ✅ Completed |
 
-The sign of the p=0.15 change is positive in all six comparisons. Its magnitude is much larger when the no-swap model has poor `type1` performance, especially SSP and dense124. This pattern is compatible with the intervention suppressing a brittle conditioning strategy, but single-seed differences should not be treated as significance-tested effects.
+The Δ column is computed from unrounded medians, so it can differ by 0.01 dB from subtracting the two displayed endpoint values.
+
+The paired real-test view summarizes the same six comparisons:
+
+![Phase III: paired real-test type1 comparison with and without position swap](figures/phase3_test_type1_paired.png)
+
+The p=0.15 change is positive in all six comparisons and is largest when the no-swap baseline is weakest, especially for SSP and dense124. This recurrence is more informative than any single gain, but the single-seed differences are not significance-tested effects.
+
+#### Validation view: route transfer on g24 B
+
+The corresponding synthetic-validation trajectories show why the real-test gains differ by route:
+
+![Phase III: swap transfer across routes](figures/phase3_swap_transfer.png)
+
+At epoch 999, MDP changes from +5.59 to +5.75 dB, whereas SSP changes from +1.49 to +5.53 dB. These are synthetic-validation values, not the real-test values above; their role is to show that the intervention also changes the route-dependent training outcome.
+
+#### Validation view: LR schedule × swap interaction
+
+The final validation ordering is not identical to the real-test ordering:
+
+![LR × swap interaction](figures/phase3_lr_swap_interaction.png)
+
+At epoch 999, warmup-cosine changes from +5.59 to +5.75 dB with swap, while constant LR changes from +5.64 to +5.30 dB. On the real test, however, both paired changes are positive (+0.37 and +0.13 dB respectively). This distinction prevents the validation curve from being over-interpreted: the main transfer claim comes from the paired real-test results, not from a uniformly higher final validation point.
 
 Under constant LR, g24 B/MDP was also completed with swap p=0.25: `type1 = +1.74`, `type2 = +1.86`, and `mean = +2.23` dB. The similar p=0.15 and p=0.25 `type1` values do not support a sharp optimum in the g24 family.
 
@@ -409,7 +483,8 @@ WaveSDR provides a consistent scalar comparison, but it cannot by itself disting
 | [`configs/`](configs/) | completed experiment definitions |
 | [`manifests/`](manifests/) | operational train/validation/test splits |
 | [`results/`](results/) | final per-run test summaries and training/validation records |
-| [`scripts/`](scripts/) | training, evaluation, audit, and manifest utilities |
+| [`figures/`](figures/) | README figures in PNG and SVG formats |
+| [`scripts/`](scripts/) | training, evaluation, audit, manifest, and figure-generation utilities |
 | [`DATA.md`](DATA.md) | data acquisition and layout notes |
 | [`REPRODUCIBILITY.md`](REPRODUCIBILITY.md) | environment and execution details |
 | [`ENVIRONMENT.md`](ENVIRONMENT.md) | recorded software/hardware environment |
